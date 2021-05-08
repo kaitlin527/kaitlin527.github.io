@@ -7,7 +7,7 @@
     <meta name="author" content="Kaitlin Ou" />
     
     <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
-    <title>Project 1</title>
+    <title>Societal Trends of the World</title>
     <meta name="generator" content="Hugo 0.83.1" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../../css/main.css" />
@@ -54,13 +54,13 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="../../project/project1/">Project 1</a></strong>
+            <strong><a href="../../project/project1/">Societal Trends of the World</a></strong>
           </h3>
         </div>
  
 <div class="blog-title">
           <h4>
-         December 1, 2020 
+         January 1, 0001 
             &nbsp;&nbsp;
             
           </h4>
@@ -72,8 +72,1219 @@
               
 
 
-<div id="test-project-1" class="section level2">
-<h2>Test Project 1</h2>
+<div id="r-markdown" class="section level2">
+<h2>R Markdown</h2>
+<div id="introduction" class="section level4">
+<h4>Introduction</h4>
+<p>There are many factors that contribute to a country’s standing with the rest of the world. The specific factors that will be explored in this project are the birth rate, gross national savings, median age, and the infant mortality rate by country. The birth rate compares the mean annual number of births a year per 1,000 people in the population. Gross national savings is computed by subtracting final consumption expenditure from gross national disposable income. The median age represents the median age of the population. The infant mortality rate is the number of deaths in infants that are younger than one year old out of 1,000 live births. These datasets were collected by accessing the Central Intelligence Agency’s (CIA) online World Factbook. The World Factbook gives demographic information on 266 world entities. These demographics range from geography, society, economy, energy, and many more. These specific variables were chosen in order to better understand the lives of other cultures outside of the United States and to explore the behaviors of people in today’s society.</p>
+</div>
+<div id="finding-importing-and-renaming-data" class="section level4">
+<h4>Finding, Importing, and Renaming Data</h4>
+<pre class="r"><code># Tidyverse was loaded into R and each data set was imported
+
+library(tidyverse)
+birth.rate &lt;- read.csv(&quot;~/birth rate.csv&quot;, header = FALSE)
+gross.national.savings &lt;- read.csv(&quot;~/gross national savings.csv&quot;, 
+    header = FALSE)
+infant.mortality.rate &lt;- read.csv(&quot;~/infant mortality rate.csv&quot;, 
+    header = FALSE)
+median.age &lt;- read.csv(&quot;~/median age.csv&quot;, header = FALSE)
+
+# The last column of each data set contained no data and was
+# removed
+
+birth.rate$V3 &lt;- NULL
+gross.national.savings$V3 &lt;- NULL
+infant.mortality.rate$V3 &lt;- NULL
+median.age$V3 &lt;- NULL
+
+# The remaining 2 columns of each data set were renamed
+
+names(birth.rate)[names(birth.rate) == &quot;V1&quot;] &lt;- &quot;Country&quot;
+names(birth.rate)[names(birth.rate) == &quot;V2&quot;] &lt;- &quot;BirthRate&quot;
+names(gross.national.savings)[names(gross.national.savings) == 
+    &quot;V1&quot;] &lt;- &quot;Country&quot;
+names(gross.national.savings)[names(gross.national.savings) == 
+    &quot;V2&quot;] &lt;- &quot;GrossNationalSavings&quot;
+names(infant.mortality.rate)[names(infant.mortality.rate) == 
+    &quot;V1&quot;] &lt;- &quot;Country&quot;
+names(infant.mortality.rate)[names(infant.mortality.rate) == 
+    &quot;V2&quot;] &lt;- &quot;InfantMortalityRate&quot;
+names(median.age)[names(median.age) == &quot;V1&quot;] &lt;- &quot;Country&quot;
+names(median.age)[names(median.age) == &quot;V2&quot;] &lt;- &quot;MedianAge&quot;</code></pre>
+</div>
+<div id="tidying-rearranging-widelong" class="section level4">
+<h4>Tidying: Rearranging Wide/Long</h4>
+<pre class="r"><code># The Birth Rate data set was untidied with pivot_wider
+
+birth.rate1 &lt;- birth.rate %&gt;% pivot_wider(names_from = &quot;Country&quot;, 
+    values_from = &quot;BirthRate&quot;)
+glimpse(birth.rate1)</code></pre>
+<pre><code>## Rows: 1
+## Columns: 227
+## $ Niger                                           &lt;dbl&gt; 47.28
+## $ Angola                                          &lt;dbl&gt; 42.22
+## $ Mali                                            &lt;dbl&gt; 41.6
+## $ Uganda                                          &lt;dbl&gt; 41.6
+## $ Benin                                           &lt;dbl&gt; 41.55
+## $ Chad                                            &lt;dbl&gt; 41.05
+## $ `Congo, Democratic Republic of the`             &lt;dbl&gt; 40.53
+## $ `South Sudan`                                   &lt;dbl&gt; 38.26
+## $ Somalia                                         &lt;dbl&gt; 38.25
+## $ Mozambique                                      &lt;dbl&gt; 38.03
+## $ Liberia                                         &lt;dbl&gt; 36.96
+## $ `Guinea-Bissau`                                 &lt;dbl&gt; 36.64
+## $ Afghanistan                                     &lt;dbl&gt; 36.08
+## $ Cameroon                                        &lt;dbl&gt; 35.91
+## $ Guinea                                          &lt;dbl&gt; 35.86
+## $ Burundi                                         &lt;dbl&gt; 35.48
+## $ Zambia                                          &lt;dbl&gt; 35.23
+## $ `Sierra Leone`                                  &lt;dbl&gt; 35.04
+## $ Nigeria                                         &lt;dbl&gt; 34.38
+## $ `Burkina Faso`                                  &lt;dbl&gt; 34.34
+## $ Tanzania                                        &lt;dbl&gt; 33.71
+## $ Sudan                                           &lt;dbl&gt; 33.63
+## $ Zimbabwe                                        &lt;dbl&gt; 33.34
+## $ `Central African Republic`                      &lt;dbl&gt; 33.2
+## $ Togo                                            &lt;dbl&gt; 32.34
+## $ `Congo, Republic of the`                        &lt;dbl&gt; 32.15
+## $ `Timor-Leste`                                   &lt;dbl&gt; 31.45
+## $ Senegal                                         &lt;dbl&gt; 31.31
+## $ Ethiopia                                        &lt;dbl&gt; 31.03
+## $ `Equatorial Guinea`                             &lt;dbl&gt; 30.09
+## $ Madagascar                                      &lt;dbl&gt; 29.22
+## $ Ghana                                           &lt;dbl&gt; 29.08
+## $ `Sao Tome and Principe`                         &lt;dbl&gt; 28.94
+## $ `Cote d&#39;Ivoire`                                 &lt;dbl&gt; 28.67
+## $ Malawi                                          &lt;dbl&gt; 28.59
+## $ Mauritania                                      &lt;dbl&gt; 28.49
+## $ `Gaza Strip`                                    &lt;dbl&gt; 28.1
+## $ Eritrea                                         &lt;dbl&gt; 27.41
+## $ Rwanda                                          &lt;dbl&gt; 27.18
+## $ Pakistan                                        &lt;dbl&gt; 26.95
+## $ Kenya                                           &lt;dbl&gt; 26.78
+## $ Egypt                                           &lt;dbl&gt; 26.44
+## $ `Gambia, The`                                   &lt;dbl&gt; 26.42
+## $ Gabon                                           &lt;dbl&gt; 26.14
+## $ Namibia                                         &lt;dbl&gt; 25.33
+## $ Iraq                                            &lt;dbl&gt; 25.21
+## $ Yemen                                           &lt;dbl&gt; 25.21
+## $ `West Bank`                                     &lt;dbl&gt; 24.8
+## $ Eswatini                                        &lt;dbl&gt; 23.87
+## $ Lesotho                                         &lt;dbl&gt; 23.3
+## $ Syria                                           &lt;dbl&gt; 23.25
+## $ `Solomon Islands`                               &lt;dbl&gt; 23.07
+## $ Comoros                                         &lt;dbl&gt; 22.98
+## $ Tuvalu                                          &lt;dbl&gt; 22.97
+## $ Guatemala                                       &lt;dbl&gt; 22.79
+## $ Jordan                                          &lt;dbl&gt; 22.79
+## $ Laos                                            &lt;dbl&gt; 22.74
+## $ Philippines                                     &lt;dbl&gt; 22.66
+## $ Oman                                            &lt;dbl&gt; 22.58
+## $ Djibouti                                        &lt;dbl&gt; 22.43
+## $ `Marshall Islands`                              &lt;dbl&gt; 22.42
+## $ Libya                                           &lt;dbl&gt; 22.23
+## $ `Papua New Guinea`                              &lt;dbl&gt; 22.08
+## $ Vanuatu                                         &lt;dbl&gt; 21.95
+## $ Belize                                          &lt;dbl&gt; 21.62
+## $ Nauru                                           &lt;dbl&gt; 21.49
+## $ Haiti                                           &lt;dbl&gt; 21.4
+## $ Tajikistan                                      &lt;dbl&gt; 21.22
+## $ Cambodia                                        &lt;dbl&gt; 20.84
+## $ Botswana                                        &lt;dbl&gt; 20.6
+## $ Tonga                                           &lt;dbl&gt; 20.6
+## $ Bolivia                                         &lt;dbl&gt; 20.36
+## $ Kiribati                                        &lt;dbl&gt; 20.27
+## $ Kyrgyzstan                                      &lt;dbl&gt; 20.06
+## $ Samoa                                           &lt;dbl&gt; 19.32
+## $ Algeria                                         &lt;dbl&gt; 19.24
+## $ `South Africa`                                  &lt;dbl&gt; 18.89
+## $ `Cabo Verde`                                    &lt;dbl&gt; 18.78
+## $ Guam                                            &lt;dbl&gt; 18.76
+## $ `Micronesia, Federated States of`               &lt;dbl&gt; 18.65
+## $ `Dominican Republic`                            &lt;dbl&gt; 18.24
+## $ `El Salvador`                                   &lt;dbl&gt; 18.22
+## $ Honduras                                        &lt;dbl&gt; 18.19
+## $ Kuwait                                          &lt;dbl&gt; 17.9
+## $ Bangladesh                                      &lt;dbl&gt; 17.88
+## $ Turkmenistan                                    &lt;dbl&gt; 17.85
+## $ Nepal                                           &lt;dbl&gt; 17.78
+## $ Morocco                                         &lt;dbl&gt; 17.58
+## $ Venezuela                                       &lt;dbl&gt; 17.55
+## $ India                                           &lt;dbl&gt; 17.53
+## $ Israel                                          &lt;dbl&gt; 17.52
+## $ Mexico                                          &lt;dbl&gt; 17.29
+## $ `American Samoa`                                &lt;dbl&gt; 17.19
+## $ Fiji                                            &lt;dbl&gt; 16.9
+## $ Ecuador                                         &lt;dbl&gt; 16.71
+## $ Nicaragua                                       &lt;dbl&gt; 16.71
+## $ Panama                                          &lt;dbl&gt; 16.67
+## $ Peru                                            &lt;dbl&gt; 16.67
+## $ Burma                                           &lt;dbl&gt; 16.65
+## $ Guyana                                          &lt;dbl&gt; 16.64
+## $ Colombia                                        &lt;dbl&gt; 16.51
+## $ Paraguay                                        &lt;dbl&gt; 16.43
+## $ Mongolia                                        &lt;dbl&gt; 16.32
+## $ Brunei                                          &lt;dbl&gt; 16.3
+## $ Bhutan                                          &lt;dbl&gt; 16.17
+## $ Vietnam                                         &lt;dbl&gt; 16.04
+## $ Jamaica                                         &lt;dbl&gt; 16.03
+## $ Kazakhstan                                      &lt;dbl&gt; 15.87
+## $ Uzbekistan                                      &lt;dbl&gt; 15.85
+## $ Argentina                                       &lt;dbl&gt; 15.8
+## $ Iran                                            &lt;dbl&gt; 15.78
+## $ Maldives                                        &lt;dbl&gt; 15.69
+## $ Indonesia                                       &lt;dbl&gt; 15.59
+## $ `Northern Mariana Islands`                      &lt;dbl&gt; 15.31
+## $ `Antigua and Barbuda`                           &lt;dbl&gt; 15.3
+## $ Tunisia                                         &lt;dbl&gt; 15.21
+## $ Kosovo                                          &lt;dbl&gt; 15.05
+## $ `Faroe Islands`                                 &lt;dbl&gt; 14.92
+## $ `Bahamas, The`                                  &lt;dbl&gt; 14.78
+## $ Malaysia                                        &lt;dbl&gt; 14.72
+## $ Suriname                                        &lt;dbl&gt; 14.7
+## $ `Saudi Arabia`                                  &lt;dbl&gt; 14.56
+## $ Turkey                                          &lt;dbl&gt; 14.54
+## $ `Costa Rica`                                    &lt;dbl&gt; 14.53
+## $ `Korea, North`                                  &lt;dbl&gt; 14.35
+## $ `New Caledonia`                                 &lt;dbl&gt; 14.28
+## $ Grenada                                         &lt;dbl&gt; 14.27
+## $ `Saint Martin`                                  &lt;dbl&gt; 14.2
+## $ Dominica                                        &lt;dbl&gt; 14.16
+## $ Azerbaijan                                      &lt;dbl&gt; 14.03
+## $ `Sri Lanka`                                     &lt;dbl&gt; 14.01
+## $ Gibraltar                                       &lt;dbl&gt; 13.99
+## $ Greenland                                       &lt;dbl&gt; 13.88
+## $ `Turks and Caicos Islands`                      &lt;dbl&gt; 13.86
+## $ `French Polynesia`                              &lt;dbl&gt; 13.69
+## $ Brazil                                          &lt;dbl&gt; 13.44
+## $ Lebanon                                         &lt;dbl&gt; 13.35
+## $ Curacao                                         &lt;dbl&gt; 13.29
+## $ Iceland                                         &lt;dbl&gt; 13.12
+## $ Chile                                           &lt;dbl&gt; 12.92
+## $ Albania                                         &lt;dbl&gt; 12.86
+## $ `Cook Islands`                                  &lt;dbl&gt; 12.85
+## $ `New Zealand`                                   &lt;dbl&gt; 12.83
+## $ `Sint Maarten`                                  &lt;dbl&gt; 12.75
+## $ Uruguay                                         &lt;dbl&gt; 12.75
+## $ Seychelles                                      &lt;dbl&gt; 12.63
+## $ Ireland                                         &lt;dbl&gt; 12.6
+## $ Bahrain                                         &lt;dbl&gt; 12.5
+## $ `Wallis and Futuna`                             &lt;dbl&gt; 12.49
+## $ Jersey                                          &lt;dbl&gt; 12.46
+## $ Mauritius                                       &lt;dbl&gt; 12.44
+## $ `Saint Vincent and the Grenadines`              &lt;dbl&gt; 12.44
+## $ `Saint Kitts and Nevis`                         &lt;dbl&gt; 12.43
+## $ Australia                                       &lt;dbl&gt; 12.35
+## $ `United States`                                 &lt;dbl&gt; 12.33
+## $ `Saint Lucia`                                   &lt;dbl&gt; 12.27
+## $ Anguilla                                        &lt;dbl&gt; 12.12
+## $ Norway                                          &lt;dbl&gt; 12.09
+## $ Aruba                                           &lt;dbl&gt; 11.95
+## $ Sweden                                          &lt;dbl&gt; 11.93
+## $ `Virgin Islands`                                &lt;dbl&gt; 11.84
+## $ `Cayman Islands`                                &lt;dbl&gt; 11.77
+## $ France                                          &lt;dbl&gt; 11.77
+## $ `United Kingdom`                                &lt;dbl&gt; 11.77
+## $ Luxembourg                                      &lt;dbl&gt; 11.62
+## $ Palau                                           &lt;dbl&gt; 11.47
+## $ Armenia                                         &lt;dbl&gt; 11.45
+## $ Montenegro                                      &lt;dbl&gt; 11.35
+## $ China                                           &lt;dbl&gt; 11.3
+## $ Georgia                                         &lt;dbl&gt; 11.26
+## $ Denmark                                         &lt;dbl&gt; 11.17
+## $ Montserrat                                      &lt;dbl&gt; 11.14
+## $ `Trinidad and Tobago`                           &lt;dbl&gt; 11.12
+## $ Bermuda                                         &lt;dbl&gt; 11.1
+## $ Belgium                                         &lt;dbl&gt; 11.03
+## $ `British Virgin Islands`                        &lt;dbl&gt; 10.98
+## $ Netherlands                                     &lt;dbl&gt; 10.98
+## $ Barbados                                        &lt;dbl&gt; 10.96
+## $ `Falkland Islands (Islas Malvinas)`             &lt;dbl&gt; 10.9
+## $ `United Arab Emirates`                          &lt;dbl&gt; 10.87
+## $ Cyprus                                          &lt;dbl&gt; 10.76
+## $ `Isle of Man`                                   &lt;dbl&gt; 10.69
+## $ Finland                                         &lt;dbl&gt; 10.49
+## $ Moldova                                         &lt;dbl&gt; 10.45
+## $ Switzerland                                     &lt;dbl&gt; 10.41
+## $ Liechtenstein                                   &lt;dbl&gt; 10.35
+## $ Cuba                                            &lt;dbl&gt; 10.25
+## $ Thailand                                        &lt;dbl&gt; 10.25
+## $ Canada                                          &lt;dbl&gt; 10.21
+## $ Malta                                           &lt;dbl&gt; 9.84
+## $ Guernsey                                        &lt;dbl&gt; 9.77
+## $ Russia                                          &lt;dbl&gt; 9.71
+## $ Austria                                         &lt;dbl&gt; 9.48
+## $ Lithuania                                       &lt;dbl&gt; 9.42
+## $ Macau                                           &lt;dbl&gt; 9.41
+## $ Qatar                                           &lt;dbl&gt; 9.38
+## $ `Saint Helena, Ascension, and Tristan da Cunha` &lt;dbl&gt; 9.35
+## $ Belarus                                         &lt;dbl&gt; 9.32
+## $ `Saint Barthelemy`                              &lt;dbl&gt; 9.27
+## $ Ukraine                                         &lt;dbl&gt; 9.23
+## $ Singapore                                       &lt;dbl&gt; 9.13
+## $ Slovakia                                        &lt;dbl&gt; 9.1
+## $ Estonia                                         &lt;dbl&gt; 9.03
+## $ Latvia                                          &lt;dbl&gt; 8.96
+## $ `San Marino`                                    &lt;dbl&gt; 8.76
+## $ Czechia                                         &lt;dbl&gt; 8.75
+## $ Serbia                                          &lt;dbl&gt; 8.74
+## $ Hungary                                         &lt;dbl&gt; 8.72
+## $ Poland                                          &lt;dbl&gt; 8.69
+## $ Croatia                                         &lt;dbl&gt; 8.68
+## $ Germany                                         &lt;dbl&gt; 8.63
+## $ `Bosnia and Herzegovina`                        &lt;dbl&gt; 8.5
+## $ Slovenia                                        &lt;dbl&gt; 8.5
+## $ Romania                                         &lt;dbl&gt; 8.39
+## $ Italy                                           &lt;dbl&gt; 8.37
+## $ `Hong Kong`                                     &lt;dbl&gt; 8.23
+## $ Bulgaria                                        &lt;dbl&gt; 8.15
+## $ Spain                                           &lt;dbl&gt; 8.05
+## $ Portugal                                        &lt;dbl&gt; 8.02
+## $ `Puerto Rico`                                   &lt;dbl&gt; 7.9
+## $ Greece                                          &lt;dbl&gt; 7.72
+## $ Taiwan                                          &lt;dbl&gt; 7.43
+## $ Japan                                           &lt;dbl&gt; 7
+## $ Andorra                                         &lt;dbl&gt; 6.91
+## $ `Korea, South`                                  &lt;dbl&gt; 6.89
+## $ Monaco                                          &lt;dbl&gt; 6.63
+## $ `Saint Pierre and Miquelon`                     &lt;dbl&gt; 6.58</code></pre>
+<pre class="r"><code># The Gross National Savings data set was untidied with
+# pivot_wider
+
+gross.national.savings1 &lt;- gross.national.savings %&gt;% pivot_wider(names_from = &quot;Country&quot;, 
+    values_from = &quot;GrossNationalSavings&quot;)
+glimpse(gross.national.savings1)</code></pre>
+<pre><code>## Rows: 1
+## Columns: 183
+## $ Qatar                               &lt;dbl&gt; 50.2
+## $ Palau                               &lt;dbl&gt; 48.7
+## $ Brunei                              &lt;dbl&gt; 47.5
+## $ Suriname                            &lt;dbl&gt; 46.6
+## $ Singapore                           &lt;dbl&gt; 46.5
+## $ China                               &lt;dbl&gt; 45.8
+## $ Nepal                               &lt;dbl&gt; 45.4
+## $ Bhutan                              &lt;dbl&gt; 40.4
+## $ Botswana                            &lt;dbl&gt; 40.3
+## $ Panama                              &lt;dbl&gt; 38.9
+## $ Zambia                              &lt;dbl&gt; 38.3
+## $ Iran                                &lt;dbl&gt; 37.9
+## $ Algeria                             &lt;dbl&gt; 37.8
+## $ `Papua New Guinea`                  &lt;dbl&gt; 36.8
+## $ `Korea, South`                      &lt;dbl&gt; 36.6
+## $ Kuwait                              &lt;dbl&gt; 35.4
+## $ Taiwan                              &lt;dbl&gt; 34.9
+## $ Norway                              &lt;dbl&gt; 34.3
+## $ Thailand                            &lt;dbl&gt; 34.1
+## $ `Sri Lanka`                         &lt;dbl&gt; 33.8
+## $ Switzerland                         &lt;dbl&gt; 33.8
+## $ Malta                               &lt;dbl&gt; 33.5
+## $ Ireland                             &lt;dbl&gt; 33.1
+## $ Uzbekistan                          &lt;dbl&gt; 32.7
+## $ `Cabo Verde`                        &lt;dbl&gt; 32.4
+## $ Ethiopia                            &lt;dbl&gt; 32.1
+## $ Indonesia                           &lt;dbl&gt; 31.7
+## $ Netherlands                         &lt;dbl&gt; 31.2
+## $ Bangladesh                          &lt;dbl&gt; 30.2
+## $ Morocco                             &lt;dbl&gt; 30.1
+## $ `Saudi Arabia`                      &lt;dbl&gt; 30.1
+## $ Vietnam                             &lt;dbl&gt; 29
+## $ Sweden                              &lt;dbl&gt; 28.9
+## $ Denmark                             &lt;dbl&gt; 28.8
+## $ India                               &lt;dbl&gt; 28.8
+## $ Angola                              &lt;dbl&gt; 28.6
+## $ Malaysia                            &lt;dbl&gt; 28.5
+## $ `United Arab Emirates`              &lt;dbl&gt; 28.5
+## $ Germany                             &lt;dbl&gt; 28
+## $ Japan                               &lt;dbl&gt; 28
+## $ Kyrgyzstan                          &lt;dbl&gt; 27.3
+## $ Austria                             &lt;dbl&gt; 27
+## $ Estonia                             &lt;dbl&gt; 27
+## $ Czechia                             &lt;dbl&gt; 26.9
+## $ Mongolia                            &lt;dbl&gt; 26.9
+## $ `Hong Kong`                         &lt;dbl&gt; 26.6
+## $ Russia                              &lt;dbl&gt; 26.5
+## $ Slovenia                            &lt;dbl&gt; 26.4
+## $ `Trinidad and Tobago`               &lt;dbl&gt; 26.4
+## $ Ecuador                             &lt;dbl&gt; 25.9
+## $ Iceland                             &lt;dbl&gt; 25.8
+## $ `Faroe Islands`                     &lt;dbl&gt; 25.7
+## $ Hungary                             &lt;dbl&gt; 25.7
+## $ Gabon                               &lt;dbl&gt; 25.6
+## $ Cameroon                            &lt;dbl&gt; 25.5
+## $ Turkey                              &lt;dbl&gt; 25.5
+## $ Bulgaria                            &lt;dbl&gt; 25.4
+## $ Eswatini                            &lt;dbl&gt; 25.4
+## $ Tanzania                            &lt;dbl&gt; 25
+## $ Haiti                               &lt;dbl&gt; 24.9
+## $ Croatia                             &lt;dbl&gt; 24.7
+## $ Azerbaijan                          &lt;dbl&gt; 24.6
+## $ Belarus                             &lt;dbl&gt; 24.5
+## $ Belgium                             &lt;dbl&gt; 24.5
+## $ Tajikistan                          &lt;dbl&gt; 24.4
+## $ Philippines                         &lt;dbl&gt; 24.3
+## $ Mauritania                          &lt;dbl&gt; 24.2
+## $ Nicaragua                           &lt;dbl&gt; 24
+## $ Turkmenistan                        &lt;dbl&gt; 23.9
+## $ Kazakhstan                          &lt;dbl&gt; 23.7
+## $ Israel                              &lt;dbl&gt; 23.6
+## $ Finland                             &lt;dbl&gt; 23.3
+## $ Zimbabwe                            &lt;dbl&gt; 23.3
+## $ Georgia                             &lt;dbl&gt; 23
+## $ Spain                               &lt;dbl&gt; 23
+## $ France                              &lt;dbl&gt; 22.9
+## $ Afghanistan                         &lt;dbl&gt; 22.7
+## $ Laos                                &lt;dbl&gt; 22.7
+## $ Niger                               &lt;dbl&gt; 22.4
+## $ Djibouti                            &lt;dbl&gt; 22.3
+## $ Luxembourg                          &lt;dbl&gt; 22.3
+## $ Honduras                            &lt;dbl&gt; 22.1
+## $ `Dominican Republic`                &lt;dbl&gt; 21.6
+## $ Mexico                              &lt;dbl&gt; 21.4
+## $ Senegal                             &lt;dbl&gt; 21.2
+## $ Romania                             &lt;dbl&gt; 21.1
+## $ Australia                           &lt;dbl&gt; 21
+## $ `New Zealand`                       &lt;dbl&gt; 21
+## $ Canada                              &lt;dbl&gt; 20.8
+## $ Latvia                              &lt;dbl&gt; 20.7
+## $ Slovakia                            &lt;dbl&gt; 20.6
+## $ Uganda                              &lt;dbl&gt; 20.6
+## $ Chile                               &lt;dbl&gt; 20.5
+## $ Italy                               &lt;dbl&gt; 20.3
+## $ Lesotho                             &lt;dbl&gt; 20.3
+## $ Poland                              &lt;dbl&gt; 20
+## $ `Saint Kitts and Nevis`             &lt;dbl&gt; 19.9
+## $ Bahrain                             &lt;dbl&gt; 19.8
+## $ Peru                                &lt;dbl&gt; 19.8
+## $ `Congo, Republic of the`            &lt;dbl&gt; 19.5
+## $ `Saint Lucia`                       &lt;dbl&gt; 19.4
+## $ Iraq                                &lt;dbl&gt; 19
+## $ Colombia                            &lt;dbl&gt; 18.9
+## $ Ukraine                             &lt;dbl&gt; 18.9
+## $ `United States`                     &lt;dbl&gt; 18.9
+## $ `Sao Tome and Principe`             &lt;dbl&gt; 18.7
+## $ Paraguay                            &lt;dbl&gt; 18.6
+## $ Jamaica                             &lt;dbl&gt; 18.3
+## $ Nigeria                             &lt;dbl&gt; 18.2
+## $ Lithuania                           &lt;dbl&gt; 18
+## $ Armenia                             &lt;dbl&gt; 17.8
+## $ Burma                               &lt;dbl&gt; 17.7
+## $ Argentina                           &lt;dbl&gt; 17.6
+## $ `Antigua and Barbuda`               &lt;dbl&gt; 17.3
+## $ Benin                               &lt;dbl&gt; 17.3
+## $ Comoros                             &lt;dbl&gt; 17.3
+## $ Kosovo                              &lt;dbl&gt; 17.3
+## $ Uruguay                             &lt;dbl&gt; 17.2
+## $ Aruba                               &lt;dbl&gt; 17
+## $ Syria                               &lt;dbl&gt; 17
+## $ Mauritius                           &lt;dbl&gt; 16.9
+## $ Mozambique                          &lt;dbl&gt; 16.8
+## $ Portugal                            &lt;dbl&gt; 16.8
+## $ Namibia                             &lt;dbl&gt; 16.7
+## $ Mali                                &lt;dbl&gt; 16.5
+## $ Oman                                &lt;dbl&gt; 16.1
+## $ `South Africa`                      &lt;dbl&gt; 16.1
+## $ Togo                                &lt;dbl&gt; 16.1
+## $ Albania                             &lt;dbl&gt; 15.9
+## $ `Cote d&#39;Ivoire`                     &lt;dbl&gt; 15.9
+## $ Bolivia                             &lt;dbl&gt; 15.7
+## $ Chad                                &lt;dbl&gt; 15.5
+## $ Serbia                              &lt;dbl&gt; 15.3
+## $ `Costa Rica`                        &lt;dbl&gt; 15.1
+## $ Brazil                              &lt;dbl&gt; 15
+## $ `El Salvador`                       &lt;dbl&gt; 14.9
+## $ Madagascar                          &lt;dbl&gt; 14.8
+## $ Cambodia                            &lt;dbl&gt; 13.7
+## $ Cyprus                              &lt;dbl&gt; 13.7
+## $ Guatemala                           &lt;dbl&gt; 13.6
+## $ `United Kingdom`                    &lt;dbl&gt; 13.6
+## $ Moldova                             &lt;dbl&gt; 13.5
+## $ Montenegro                          &lt;dbl&gt; 13.2
+## $ `Solomon Islands`                   &lt;dbl&gt; 13.1
+## $ Fiji                                &lt;dbl&gt; 12.7
+## $ Rwanda                              &lt;dbl&gt; 12.5
+## $ `Saint Vincent and the Grenadines`  &lt;dbl&gt; 12.1
+## $ Sudan                               &lt;dbl&gt; 12.1
+## $ Venezuela                           &lt;dbl&gt; 12.1
+## $ Pakistan                            &lt;dbl&gt; 12
+## $ Tunisia                             &lt;dbl&gt; 12
+## $ Grenada                             &lt;dbl&gt; 11.7
+## $ `Congo, Democratic Republic of the` &lt;dbl&gt; 11.5
+## $ `Bahamas, The`                      &lt;dbl&gt; 11.4
+## $ Cuba                                &lt;dbl&gt; 11.4
+## $ Belize                              &lt;dbl&gt; 11.3
+## $ `Bosnia and Herzegovina`            &lt;dbl&gt; 11
+## $ Greece                              &lt;dbl&gt; 10.9
+## $ Dominica                            &lt;dbl&gt; 10.8
+## $ Guyana                              &lt;dbl&gt; 10.5
+## $ Kenya                               &lt;dbl&gt; 10.4
+## $ `Sierra Leone`                      &lt;dbl&gt; 10
+## $ `Burkina Faso`                      &lt;dbl&gt; 9.3
+## $ Jordan                              &lt;dbl&gt; 9.1
+## $ Egypt                               &lt;dbl&gt; 9
+## $ Ghana                               &lt;dbl&gt; 9
+## $ `Guinea-Bissau`                     &lt;dbl&gt; 8.6
+## $ Seychelles                          &lt;dbl&gt; 8.1
+## $ `West Bank`                         &lt;dbl&gt; 7.8
+## $ Barbados                            &lt;dbl&gt; 7.2
+## $ `Gambia, The`                       &lt;dbl&gt; 6.8
+## $ `Equatorial Guinea`                 &lt;dbl&gt; 6.1
+## $ Eritrea                             &lt;dbl&gt; 5.5
+## $ `Central African Republic`          &lt;dbl&gt; 5.4
+## $ Guinea                              &lt;dbl&gt; 5.1
+## $ Libya                               &lt;dbl&gt; 5
+## $ Malawi                              &lt;dbl&gt; 3.9
+## $ `South Sudan`                       &lt;dbl&gt; 3.6
+## $ Maldives                            &lt;dbl&gt; 0.5
+## $ Lebanon                             &lt;dbl&gt; -0.7
+## $ Yemen                               &lt;dbl&gt; -1.9
+## $ Burundi                             &lt;dbl&gt; -5.3
+## $ Liberia                             &lt;dbl&gt; -21.9</code></pre>
+<pre class="r"><code># The Median Age data set was untidied with pivot_wider
+
+median.age1 &lt;- median.age %&gt;% pivot_wider(names_from = &quot;Country&quot;, 
+    values_from = &quot;MedianAge&quot;)
+glimpse(median.age1)</code></pre>
+<pre><code>## Rows: 1
+## Columns: 226
+## $ Monaco                                          &lt;dbl&gt; 55.4
+## $ Japan                                           &lt;dbl&gt; 48.6
+## $ `Saint Pierre and Miquelon`                     &lt;dbl&gt; 48.5
+## $ Germany                                         &lt;dbl&gt; 47.8
+## $ Italy                                           &lt;dbl&gt; 46.5
+## $ Andorra                                         &lt;dbl&gt; 46.2
+## $ `Hong Kong`                                     &lt;dbl&gt; 45.6
+## $ `Saint Barthelemy`                              &lt;dbl&gt; 45.6
+## $ Greece                                          &lt;dbl&gt; 45.3
+## $ `San Marino`                                    &lt;dbl&gt; 45.2
+## $ Slovenia                                        &lt;dbl&gt; 44.9
+## $ `Isle of Man`                                   &lt;dbl&gt; 44.6
+## $ Portugal                                        &lt;dbl&gt; 44.6
+## $ Austria                                         &lt;dbl&gt; 44.5
+## $ Lithuania                                       &lt;dbl&gt; 44.5
+## $ Latvia                                          &lt;dbl&gt; 44.4
+## $ Guernsey                                        &lt;dbl&gt; 44.3
+## $ Croatia                                         &lt;dbl&gt; 43.9
+## $ Spain                                           &lt;dbl&gt; 43.9
+## $ Bulgaria                                        &lt;dbl&gt; 43.7
+## $ Estonia                                         &lt;dbl&gt; 43.7
+## $ Liechtenstein                                   &lt;dbl&gt; 43.7
+## $ Bermuda                                         &lt;dbl&gt; 43.6
+## $ Hungary                                         &lt;dbl&gt; 43.6
+## $ `Puerto Rico`                                   &lt;dbl&gt; 43.6
+## $ Serbia                                          &lt;dbl&gt; 43.4
+## $ `Bosnia and Herzegovina`                        &lt;dbl&gt; 43.3
+## $ Czechia                                         &lt;dbl&gt; 43.3
+## $ `Korea, South`                                  &lt;dbl&gt; 43.2
+## $ `Saint Helena, Ascension, and Tristan da Cunha` &lt;dbl&gt; 43.2
+## $ Finland                                         &lt;dbl&gt; 42.8
+## $ Netherlands                                     &lt;dbl&gt; 42.8
+## $ Switzerland                                     &lt;dbl&gt; 42.7
+## $ Romania                                         &lt;dbl&gt; 42.5
+## $ Malta                                           &lt;dbl&gt; 42.3
+## $ Taiwan                                          &lt;dbl&gt; 42.3
+## $ Cuba                                            &lt;dbl&gt; 42.1
+## $ Denmark                                         &lt;dbl&gt; 42
+## $ Poland                                          &lt;dbl&gt; 41.9
+## $ Canada                                          &lt;dbl&gt; 41.8
+## $ Slovakia                                        &lt;dbl&gt; 41.8
+## $ `Virgin Islands`                                &lt;dbl&gt; 41.8
+## $ France                                          &lt;dbl&gt; 41.7
+## $ Belgium                                         &lt;dbl&gt; 41.6
+## $ Ukraine                                         &lt;dbl&gt; 41.2
+## $ `Sint Maarten`                                  &lt;dbl&gt; 41.1
+## $ Sweden                                          &lt;dbl&gt; 41.1
+## $ Belarus                                         &lt;dbl&gt; 40.9
+## $ Macau                                           &lt;dbl&gt; 40.8
+## $ `United Kingdom`                                &lt;dbl&gt; 40.6
+## $ `Cayman Islands`                                &lt;dbl&gt; 40.5
+## $ Russia                                          &lt;dbl&gt; 40.3
+## $ Aruba                                           &lt;dbl&gt; 39.9
+## $ Montenegro                                      &lt;dbl&gt; 39.6
+## $ Barbados                                        &lt;dbl&gt; 39.5
+## $ Luxembourg                                      &lt;dbl&gt; 39.5
+## $ Norway                                          &lt;dbl&gt; 39.5
+## $ Thailand                                        &lt;dbl&gt; 39
+## $ Georgia                                         &lt;dbl&gt; 38.6
+## $ `United States`                                 &lt;dbl&gt; 38.5
+## $ China                                           &lt;dbl&gt; 38.4
+## $ `United Arab Emirates`                          &lt;dbl&gt; 38.4
+## $ `Cook Islands`                                  &lt;dbl&gt; 38.3
+## $ Cyprus                                          &lt;dbl&gt; 37.9
+## $ Ireland                                         &lt;dbl&gt; 37.8
+## $ `Trinidad and Tobago`                           &lt;dbl&gt; 37.8
+## $ Moldova                                         &lt;dbl&gt; 37.7
+## $ Australia                                       &lt;dbl&gt; 37.5
+## $ Jersey                                          &lt;dbl&gt; 37.5
+## $ `British Virgin Islands`                        &lt;dbl&gt; 37.2
+## $ `Faroe Islands`                                 &lt;dbl&gt; 37.2
+## $ `New Zealand`                                   &lt;dbl&gt; 37.2
+## $ Iceland                                         &lt;dbl&gt; 37.1
+## $ `Saint Lucia`                                   &lt;dbl&gt; 36.9
+## $ Seychelles                                      &lt;dbl&gt; 36.8
+## $ Curacao                                         &lt;dbl&gt; 36.7
+## $ Armenia                                         &lt;dbl&gt; 36.6
+## $ `Saint Kitts and Nevis`                         &lt;dbl&gt; 36.5
+## $ Mauritius                                       &lt;dbl&gt; 36.3
+## $ Anguilla                                        &lt;dbl&gt; 35.7
+## $ Singapore                                       &lt;dbl&gt; 35.6
+## $ Chile                                           &lt;dbl&gt; 35.5
+## $ Gibraltar                                       &lt;dbl&gt; 35.5
+## $ Uruguay                                         &lt;dbl&gt; 35.5
+## $ `Saint Vincent and the Grenadines`              &lt;dbl&gt; 35.3
+## $ Dominica                                        &lt;dbl&gt; 34.9
+## $ Montserrat                                      &lt;dbl&gt; 34.8
+## $ `Korea, North`                                  &lt;dbl&gt; 34.6
+## $ `Turks and Caicos Islands`                      &lt;dbl&gt; 34.6
+## $ Albania                                         &lt;dbl&gt; 34.3
+## $ Greenland                                       &lt;dbl&gt; 34.3
+## $ `Wallis and Futuna`                             &lt;dbl&gt; 34
+## $ Palau                                           &lt;dbl&gt; 33.9
+## $ Lebanon                                         &lt;dbl&gt; 33.7
+## $ Qatar                                           &lt;dbl&gt; 33.7
+## $ `Sri Lanka`                                     &lt;dbl&gt; 33.7
+## $ `French Polynesia`                              &lt;dbl&gt; 33.3
+## $ Grenada                                         &lt;dbl&gt; 33.3
+## $ `Saint Martin`                                  &lt;dbl&gt; 33.3
+## $ Brazil                                          &lt;dbl&gt; 33.2
+## $ Bahrain                                         &lt;dbl&gt; 32.9
+## $ `New Caledonia`                                 &lt;dbl&gt; 32.9
+## $ `Bahamas, The`                                  &lt;dbl&gt; 32.8
+## $ `Northern Mariana Islands`                      &lt;dbl&gt; 32.8
+## $ `Antigua and Barbuda`                           &lt;dbl&gt; 32.7
+## $ Tunisia                                         &lt;dbl&gt; 32.7
+## $ Azerbaijan                                      &lt;dbl&gt; 32.6
+## $ `Costa Rica`                                    &lt;dbl&gt; 32.6
+## $ Argentina                                       &lt;dbl&gt; 32.4
+## $ Turkey                                          &lt;dbl&gt; 32.2
+## $ Vietnam                                         &lt;dbl&gt; 31.9
+## $ Iran                                            &lt;dbl&gt; 31.7
+## $ Kazakhstan                                      &lt;dbl&gt; 31.6
+## $ Colombia                                        &lt;dbl&gt; 31.2
+## $ Brunei                                          &lt;dbl&gt; 31.1
+## $ Indonesia                                       &lt;dbl&gt; 31.1
+## $ Suriname                                        &lt;dbl&gt; 31
+## $ `Saudi Arabia`                                  &lt;dbl&gt; 30.8
+## $ Kosovo                                          &lt;dbl&gt; 30.5
+## $ Israel                                          &lt;dbl&gt; 30.4
+## $ Panama                                          &lt;dbl&gt; 30.1
+## $ Uzbekistan                                      &lt;dbl&gt; 30.1
+## $ Venezuela                                       &lt;dbl&gt; 30
+## $ Fiji                                            &lt;dbl&gt; 29.9
+## $ Mongolia                                        &lt;dbl&gt; 29.8
+## $ Kuwait                                          &lt;dbl&gt; 29.7
+## $ Paraguay                                        &lt;dbl&gt; 29.7
+## $ Maldives                                        &lt;dbl&gt; 29.5
+## $ Guam                                            &lt;dbl&gt; 29.4
+## $ Jamaica                                         &lt;dbl&gt; 29.4
+## $ Mexico                                          &lt;dbl&gt; 29.3
+## $ Burma                                           &lt;dbl&gt; 29.2
+## $ Malaysia                                        &lt;dbl&gt; 29.2
+## $ Turkmenistan                                    &lt;dbl&gt; 29.2
+## $ Bhutan                                          &lt;dbl&gt; 29.1
+## $ Morocco                                         &lt;dbl&gt; 29.1
+## $ Peru                                            &lt;dbl&gt; 29.1
+## $ Algeria                                         &lt;dbl&gt; 28.9
+## $ Ecuador                                         &lt;dbl&gt; 28.8
+## $ India                                           &lt;dbl&gt; 28.7
+## $ `South Africa`                                  &lt;dbl&gt; 28
+## $ Bangladesh                                      &lt;dbl&gt; 27.9
+## $ `Dominican Republic`                            &lt;dbl&gt; 27.9
+## $ `El Salvador`                                   &lt;dbl&gt; 27.7
+## $ Guyana                                          &lt;dbl&gt; 27.5
+## $ Kyrgyzstan                                      &lt;dbl&gt; 27.3
+## $ Nicaragua                                       &lt;dbl&gt; 27.3
+## $ `American Samoa`                                &lt;dbl&gt; 27.2
+## $ Nauru                                           &lt;dbl&gt; 27
+## $ `Cabo Verde`                                    &lt;dbl&gt; 26.8
+## $ Tuvalu                                          &lt;dbl&gt; 26.6
+## $ Cambodia                                        &lt;dbl&gt; 26.4
+## $ `Micronesia, Federated States of`               &lt;dbl&gt; 26.3
+## $ Oman                                            &lt;dbl&gt; 26.2
+## $ Libya                                           &lt;dbl&gt; 25.8
+## $ Botswana                                        &lt;dbl&gt; 25.7
+## $ Kiribati                                        &lt;dbl&gt; 25.7
+## $ Samoa                                           &lt;dbl&gt; 25.6
+## $ Bolivia                                         &lt;dbl&gt; 25.3
+## $ Nepal                                           &lt;dbl&gt; 25.3
+## $ Tajikistan                                      &lt;dbl&gt; 25.3
+## $ Djibouti                                        &lt;dbl&gt; 24.9
+## $ Lesotho                                         &lt;dbl&gt; 24.7
+## $ Honduras                                        &lt;dbl&gt; 24.4
+## $ Egypt                                           &lt;dbl&gt; 24.1
+## $ Haiti                                           &lt;dbl&gt; 24.1
+## $ Philippines                                     &lt;dbl&gt; 24.1
+## $ Tonga                                           &lt;dbl&gt; 24.1
+## $ Laos                                            &lt;dbl&gt; 24
+## $ `Papua New Guinea`                              &lt;dbl&gt; 24
+## $ Belize                                          &lt;dbl&gt; 23.9
+## $ `Marshall Islands`                              &lt;dbl&gt; 23.8
+## $ Eswatini                                        &lt;dbl&gt; 23.7
+## $ Jordan                                          &lt;dbl&gt; 23.5
+## $ `Solomon Islands`                               &lt;dbl&gt; 23.5
+## $ Syria                                           &lt;dbl&gt; 23.5
+## $ Guatemala                                       &lt;dbl&gt; 23.2
+## $ Vanuatu                                         &lt;dbl&gt; 23
+## $ Pakistan                                        &lt;dbl&gt; 22
+## $ `West Bank`                                     &lt;dbl&gt; 21.9
+## $ `Gambia, The`                                   &lt;dbl&gt; 21.8
+## $ Namibia                                         &lt;dbl&gt; 21.8
+## $ Ghana                                           &lt;dbl&gt; 21.4
+## $ Iraq                                            &lt;dbl&gt; 21.2
+## $ Gabon                                           &lt;dbl&gt; 21
+## $ Mauritania                                      &lt;dbl&gt; 21
+## $ Comoros                                         &lt;dbl&gt; 20.9
+## $ Zimbabwe                                        &lt;dbl&gt; 20.5
+## $ `Cote d&#39;Ivoire`                                 &lt;dbl&gt; 20.3
+## $ `Equatorial Guinea`                             &lt;dbl&gt; 20.3
+## $ Eritrea                                         &lt;dbl&gt; 20.3
+## $ Madagascar                                      &lt;dbl&gt; 20.3
+## $ `Central African Republic`                      &lt;dbl&gt; 20
+## $ Kenya                                           &lt;dbl&gt; 20
+## $ Togo                                            &lt;dbl&gt; 20
+## $ Ethiopia                                        &lt;dbl&gt; 19.8
+## $ Yemen                                           &lt;dbl&gt; 19.8
+## $ Rwanda                                          &lt;dbl&gt; 19.7
+## $ `Timor-Leste`                                   &lt;dbl&gt; 19.6
+## $ Afghanistan                                     &lt;dbl&gt; 19.5
+## $ `Congo, Republic of the`                        &lt;dbl&gt; 19.5
+## $ Senegal                                         &lt;dbl&gt; 19.4
+## $ `Sao Tome and Principe`                         &lt;dbl&gt; 19.3
+## $ Guinea                                          &lt;dbl&gt; 19.1
+## $ `Sierra Leone`                                  &lt;dbl&gt; 19.1
+## $ Nigeria                                         &lt;dbl&gt; 18.6
+## $ `South Sudan`                                   &lt;dbl&gt; 18.6
+## $ Cameroon                                        &lt;dbl&gt; 18.5
+## $ Somalia                                         &lt;dbl&gt; 18.5
+## $ Sudan                                           &lt;dbl&gt; 18.3
+## $ Tanzania                                        &lt;dbl&gt; 18.2
+## $ `Gaza Strip`                                    &lt;dbl&gt; 18
+## $ `Guinea-Bissau`                                 &lt;dbl&gt; 18
+## $ Liberia                                         &lt;dbl&gt; 18
+## $ `Burkina Faso`                                  &lt;dbl&gt; 17.9
+## $ Burundi                                         &lt;dbl&gt; 17.7
+## $ Benin                                           &lt;dbl&gt; 17
+## $ Mozambique                                      &lt;dbl&gt; 17
+## $ Zambia                                          &lt;dbl&gt; 16.9
+## $ Malawi                                          &lt;dbl&gt; 16.8
+## $ `Congo, Democratic Republic of the`             &lt;dbl&gt; 16.7
+## $ Chad                                            &lt;dbl&gt; 16.1
+## $ Mali                                            &lt;dbl&gt; 16
+## $ Angola                                          &lt;dbl&gt; 15.9
+## $ Uganda                                          &lt;dbl&gt; 15.7
+## $ Niger                                           &lt;dbl&gt; 14.8</code></pre>
+<pre class="r"><code># The Infant Mortality Rate data set was untidied with
+# pivot_wider
+
+infant.mortality.rate1 &lt;- infant.mortality.rate %&gt;% pivot_wider(names_from = &quot;Country&quot;, 
+    values_from = &quot;InfantMortalityRate&quot;)
+glimpse(infant.mortality.rate1)</code></pre>
+<pre><code>## Rows: 1
+## Columns: 235
+## $ Afghanistan                                     &lt;dbl&gt; 106.75
+## $ Somalia                                         &lt;dbl&gt; 88.03
+## $ `Central African Republic`                      &lt;dbl&gt; 84.22
+## $ Niger                                           &lt;dbl&gt; 68.12
+## $ Chad                                            &lt;dbl&gt; 67.02
+## $ Niue                                            &lt;dbl&gt; 68.12
+## $ `Sierra Leone`                                  &lt;dbl&gt; 65.34
+## $ `Gambia, The`                                   &lt;dbl&gt; 65.04
+## $ `South Sudan`                                   &lt;dbl&gt; 64.77
+## $ `Equatorial Guinea`                             &lt;dbl&gt; 63.25
+## $ Mozambique                                      &lt;dbl&gt; 63.03
+## $ `Congo, Democratic Republic of the`             &lt;dbl&gt; 62.63
+## $ Mali                                            &lt;dbl&gt; 62.31
+## $ Angola                                          &lt;dbl&gt; 60.58
+## $ Nigeria                                         &lt;dbl&gt; 58.23
+## $ Comoros                                         &lt;dbl&gt; 58.21
+## $ `Cote d&#39;Ivoire`                                 &lt;dbl&gt; 57.36
+## $ Benin                                           &lt;dbl&gt; 57.23
+## $ Pakistan                                        &lt;dbl&gt; 55.26
+## $ Mauritania                                      &lt;dbl&gt; 52.05
+## $ Guinea                                          &lt;dbl&gt; 50.99
+## $ `Burkina Faso`                                  &lt;dbl&gt; 50.71
+## $ `Guinea-Bissau`                                 &lt;dbl&gt; 50.44
+## $ Lesotho                                         &lt;dbl&gt; 50.23
+## $ Cameroon                                        &lt;dbl&gt; 50.09
+## $ Laos                                            &lt;dbl&gt; 49.48
+## $ `Congo, Republic of the`                        &lt;dbl&gt; 49.28
+## $ Djibouti                                        &lt;dbl&gt; 47.78
+## $ Senegal                                         &lt;dbl&gt; 47.72
+## $ Yemen                                           &lt;dbl&gt; 47.56
+## $ Liberia                                         &lt;dbl&gt; 45.98
+## $ Cambodia                                        &lt;dbl&gt; 45.62
+## $ `Sao Tome and Principe`                         &lt;dbl&gt; 45.3
+## $ Sudan                                           &lt;dbl&gt; 43.15
+## $ Togo                                            &lt;dbl&gt; 42.64
+## $ Eritrea                                         &lt;dbl&gt; 42.39
+## $ Haiti                                           &lt;dbl&gt; 41.29
+## $ Eswatini                                        &lt;dbl&gt; 41.2
+## $ `Papua New Guinea`                              &lt;dbl&gt; 40.33
+## $ Madagascar                                      &lt;dbl&gt; 39.82
+## $ India                                           &lt;dbl&gt; 39.55
+## $ `Spratly Islands`                               &lt;dbl&gt; 40.33
+## $ Bolivia                                         &lt;dbl&gt; 39.27
+## $ Burundi                                         &lt;dbl&gt; 38.96
+## $ Turkmenistan                                    &lt;dbl&gt; 38.54
+## $ Zambia                                          &lt;dbl&gt; 37.91
+## $ Bhutan                                          &lt;dbl&gt; 35.99
+## $ Kosovo                                          &lt;dbl&gt; 35.93
+## $ Ethiopia                                        &lt;dbl&gt; 34.62
+## $ `Timor-Leste`                                   &lt;dbl&gt; 34.47
+## $ Malawi                                          &lt;dbl&gt; 34.19
+## $ Burma                                           &lt;dbl&gt; 33.71
+## $ Kiribati                                        &lt;dbl&gt; 33.66
+## $ Tokelau                                         &lt;dbl&gt; 34.47
+## $ Ghana                                           &lt;dbl&gt; 33.33
+## $ Tajikistan                                      &lt;dbl&gt; 33.05
+## $ Tanzania                                        &lt;dbl&gt; 31.51
+## $ Uganda                                          &lt;dbl&gt; 31.49
+## $ Bangladesh                                      &lt;dbl&gt; 31.13
+## $ Namibia                                         &lt;dbl&gt; 30.38
+## $ Tuvalu                                          &lt;dbl&gt; 29.52
+## $ Gabon                                           &lt;dbl&gt; 29.45
+## $ Zimbabwe                                        &lt;dbl&gt; 29.41
+## $ Kenya                                           &lt;dbl&gt; 28.81
+## $ Rwanda                                          &lt;dbl&gt; 27.16
+## $ `South Africa`                                  &lt;dbl&gt; 26.82
+## $ Guatemala                                       &lt;dbl&gt; 26.81
+## $ Suriname                                        &lt;dbl&gt; 26.6
+## $ Maldives                                        &lt;dbl&gt; 26.4
+## $ Kyrgyzstan                                      &lt;dbl&gt; 26.26
+## $ Botswana                                        &lt;dbl&gt; 25.97
+## $ Nepal                                           &lt;dbl&gt; 25.73
+## $ `Trinidad and Tobago`                           &lt;dbl&gt; 24.55
+## $ Azerbaijan                                      &lt;dbl&gt; 24.1
+## $ `Cabo Verde`                                    &lt;dbl&gt; 24.1
+## $ Paraguay                                        &lt;dbl&gt; 23.83
+## $ Guyana                                          &lt;dbl&gt; 22.68
+## $ `Micronesia, Federated States of`               &lt;dbl&gt; 22.45
+## $ `Korea, North`                                  &lt;dbl&gt; 22.42
+## $ Venezuela                                       &lt;dbl&gt; 22.23
+## $ `Marshall Islands`                              &lt;dbl&gt; 22.2
+## $ `Dominican Republic`                            &lt;dbl&gt; 21.68
+## $ Mongolia                                        &lt;dbl&gt; 20.6
+## $ Philippines                                     &lt;dbl&gt; 20.55
+## $ `Solomon Islands`                               &lt;dbl&gt; 20.52
+## $ Algeria                                         &lt;dbl&gt; 20.23
+## $ Indonesia                                       &lt;dbl&gt; 20.16
+## $ Iraq                                            &lt;dbl&gt; 20.08
+## $ Turkey                                          &lt;dbl&gt; 19.87
+## $ `Saint Helena, Ascension, and Tristan da Cunha` &lt;dbl&gt; 19.77
+## $ Kazakhstan                                      &lt;dbl&gt; 19.59
+## $ Nicaragua                                       &lt;dbl&gt; 19.57
+## $ Uzbekistan                                      &lt;dbl&gt; 19.42
+## $ Peru                                            &lt;dbl&gt; 19.37
+## $ Morocco                                         &lt;dbl&gt; 19
+## $ Samoa                                           &lt;dbl&gt; 18.75
+## $ Ecuador                                         &lt;dbl&gt; 18.55
+## $ Brazil                                          &lt;dbl&gt; 18.37
+## $ Egypt                                           &lt;dbl&gt; 18.25
+## $ `Cook Islands`                                  &lt;dbl&gt; 16.33
+## $ Syria                                           &lt;dbl&gt; 16.27
+## $ `West Bank`                                     &lt;dbl&gt; 15.68
+## $ `Cocos (Keeling) Islands`                       &lt;dbl&gt; 16.33
+## $ `Gaza Strip`                                    &lt;dbl&gt; 15.6
+## $ Honduras                                        &lt;dbl&gt; 15.39
+## $ Georgia                                         &lt;dbl&gt; 15.1
+## $ Iran                                            &lt;dbl&gt; 15.1
+## $ Vietnam                                         &lt;dbl&gt; 15.09
+## $ Oman                                            &lt;dbl&gt; 14.76
+## $ Vanuatu                                         &lt;dbl&gt; 14.69
+## $ `Antigua and Barbuda`                           &lt;dbl&gt; 14.65
+## $ `British Virgin Islands`                        &lt;dbl&gt; 14.56
+## $ Jordan                                          &lt;dbl&gt; 14.25
+## $ `Saint Vincent and the Grenadines`              &lt;dbl&gt; 13.16
+## $ `Bahamas, The`                                  &lt;dbl&gt; 13.05
+## $ Colombia                                        &lt;dbl&gt; 12.88
+## $ `Northern Mariana Islands`                      &lt;dbl&gt; 12.79
+## $ Tonga                                           &lt;dbl&gt; 12.73
+## $ `Saudi Arabia`                                  &lt;dbl&gt; 12.58
+## $ Armenia                                         &lt;dbl&gt; 12.47
+## $ Aruba                                           &lt;dbl&gt; 12.39
+## $ `El Salvador`                                   &lt;dbl&gt; 12.38
+## $ `Saint Lucia`                                   &lt;dbl&gt; 12.23
+## $ Tunisia                                         &lt;dbl&gt; 12.16
+## $ `Turks and Caicos Islands`                      &lt;dbl&gt; 11.87
+## $ Moldova                                         &lt;dbl&gt; 11.83
+## $ Guam                                            &lt;dbl&gt; 11.73
+## $ Svalbard                                        &lt;dbl&gt; 12.38
+## $ Mexico                                          &lt;dbl&gt; 11.64
+## $ Dominica                                        &lt;dbl&gt; 11.56
+## $ Palau                                           &lt;dbl&gt; 11.52
+## $ Libya                                           &lt;dbl&gt; 11.48
+## $ Jamaica                                         &lt;dbl&gt; 11.42
+## $ Belize                                          &lt;dbl&gt; 11.4
+## $ Panama                                          &lt;dbl&gt; 11.25
+## $ China                                           &lt;dbl&gt; 11.15
+## $ Albania                                         &lt;dbl&gt; 11.1
+## $ Seychelles                                      &lt;dbl&gt; 10.83
+## $ Mauritius                                       &lt;dbl&gt; 10.82
+## $ Brunei                                          &lt;dbl&gt; 10.79
+## $ Montserrat                                      &lt;dbl&gt; 10.7
+## $ Bahrain                                         &lt;dbl&gt; 10.54
+## $ Fiji                                            &lt;dbl&gt; 10.27
+## $ `American Samoa`                                &lt;dbl&gt; 10.25
+## $ Barbados                                        &lt;dbl&gt; 10.23
+## $ Grenada                                         &lt;dbl&gt; 9.6
+## $ Argentina                                       &lt;dbl&gt; 9.55
+## $ Romania                                         &lt;dbl&gt; 9.41
+## $ Croatia                                         &lt;dbl&gt; 8.91
+## $ Greenland                                       &lt;dbl&gt; 8.9
+## $ Cyprus                                          &lt;dbl&gt; 8.61
+## $ `Costa Rica`                                    &lt;dbl&gt; 8.59
+## $ `Saint Kitts and Nevis`                         &lt;dbl&gt; 8.5
+## $ Uruguay                                         &lt;dbl&gt; 8.48
+## $ `Sri Lanka`                                     &lt;dbl&gt; 8.36
+## $ `Saint Pierre and Miquelon`                     &lt;dbl&gt; 8.35
+## $ `Coral Sea Islands`                             &lt;dbl&gt; 8.59
+## $ `Sint Maarten`                                  &lt;dbl&gt; 8.16
+## $ Bulgaria                                        &lt;dbl&gt; 8.14
+## $ Curacao                                         &lt;dbl&gt; 8.05
+## $ Nauru                                           &lt;dbl&gt; 7.96
+## $ `Cayman Islands`                                &lt;dbl&gt; 7.84
+## $ `Virgin Islands`                                &lt;dbl&gt; 7.81
+## $ Kuwait                                          &lt;dbl&gt; 7.6
+## $ `South Georgia and South Sandwich Islands`      &lt;dbl&gt; 8.16
+## $ Ukraine                                         &lt;dbl&gt; 7.44
+## $ Lebanon                                         &lt;dbl&gt; 7.2
+## $ `Saint Barthelemy`                              &lt;dbl&gt; 6.85
+## $ `Saint Martin`                                  &lt;dbl&gt; 6.85
+## $ Malaysia                                        &lt;dbl&gt; 6.7
+## $ Qatar                                           &lt;dbl&gt; 6.7
+## $ Chile                                           &lt;dbl&gt; 6.68
+## $ `San Marino`                                    &lt;dbl&gt; 6.67
+## $ Thailand                                        &lt;dbl&gt; 6.58
+## $ Russia                                          &lt;dbl&gt; 6.51
+## $ Gibraltar                                       &lt;dbl&gt; 6.38
+## $ `Puerto Rico`                                   &lt;dbl&gt; 6.16
+## $ `Faroe Islands`                                 &lt;dbl&gt; 6.11
+## $ Serbia                                          &lt;dbl&gt; 5.67
+## $ `Bosnia and Herzegovina`                        &lt;dbl&gt; 5.32
+## $ `United Arab Emirates`                          &lt;dbl&gt; 5.25
+## $ `United States`                                 &lt;dbl&gt; 5.22
+## $ `New Caledonia`                                 &lt;dbl&gt; 5.08
+## $ Latvia                                          &lt;dbl&gt; 4.93
+## $ Slovakia                                        &lt;dbl&gt; 4.9
+## $ Hungary                                         &lt;dbl&gt; 4.69
+## $ Macau                                           &lt;dbl&gt; 4.69
+## $ Malta                                           &lt;dbl&gt; 4.62
+## $ `French Polynesia`                              &lt;dbl&gt; 4.46
+## $ Canada                                          &lt;dbl&gt; 4.44
+## $ `Isle of Man`                                   &lt;dbl&gt; 4.31
+## $ `United Kingdom`                                &lt;dbl&gt; 4.27
+## $ Poland                                          &lt;dbl&gt; 4.22
+## $ Cuba                                            &lt;dbl&gt; 4.19
+## $ Liechtenstein                                   &lt;dbl&gt; 4.12
+## $ `Wallis and Futuna`                             &lt;dbl&gt; 4.06
+## $ `Paracel Islands`                               &lt;dbl&gt; 4.46
+## $ Taiwan                                          &lt;dbl&gt; 4.03
+## $ Jersey                                          &lt;dbl&gt; 3.94
+## $ Lithuania                                       &lt;dbl&gt; 3.66
+## $ Switzerland                                     &lt;dbl&gt; 3.64
+## $ Israel                                          &lt;dbl&gt; 3.62
+## $ Greece                                          &lt;dbl&gt; 3.61
+## $ Ireland                                         &lt;dbl&gt; 3.52
+## $ Andorra                                         &lt;dbl&gt; 3.5
+## $ `New Zealand`                                   &lt;dbl&gt; 3.5
+## $ Estonia                                         &lt;dbl&gt; 3.47
+## $ Netherlands                                     &lt;dbl&gt; 3.45
+## $ Guernsey                                        &lt;dbl&gt; 3.41
+## $ Belarus                                         &lt;dbl&gt; 3.31
+## $ Luxembourg                                      &lt;dbl&gt; 3.3
+## $ Austria                                         &lt;dbl&gt; 3.29
+## $ Montenegro                                      &lt;dbl&gt; 3.29
+## $ Belgium                                         &lt;dbl&gt; 3.24
+## $ Germany                                         &lt;dbl&gt; 3.24
+## $ France                                          &lt;dbl&gt; 3.19
+## $ Italy                                           &lt;dbl&gt; 3.14
+## $ Spain                                           &lt;dbl&gt; 3.14
+## $ Anguilla                                        &lt;dbl&gt; 3.11
+## $ `Ashmore and Cartier Islands`                   &lt;dbl&gt; 3.29
+## $ Denmark                                         &lt;dbl&gt; 3.09
+## $ Australia                                       &lt;dbl&gt; 3.05
+## $ `Korea, South`                                  &lt;dbl&gt; 2.91
+## $ `Hong Kong`                                     &lt;dbl&gt; 2.59
+## $ Portugal                                        &lt;dbl&gt; 2.53
+## $ Sweden                                          &lt;dbl&gt; 2.45
+## $ Czechia                                         &lt;dbl&gt; 2.42
+## $ Norway                                          &lt;dbl&gt; 2.34
+## $ Bermuda                                         &lt;dbl&gt; 2.21
+## $ Finland                                         &lt;dbl&gt; 2.15
+## $ Japan                                           &lt;dbl&gt; 1.92
+## $ Monaco                                          &lt;dbl&gt; 1.78
+## $ Iceland                                         &lt;dbl&gt; 1.66
+## $ Singapore                                       &lt;dbl&gt; 1.56
+## $ Slovenia                                        &lt;dbl&gt; 1.53</code></pre>
+<pre class="r"><code># Each data set was then retidied with pivot_longer
+
+birth.rate2 &lt;- birth.rate1 %&gt;% pivot_longer(cols = everything())
+glimpse(birth.rate2)</code></pre>
+<pre><code>## Rows: 227
+## Columns: 2
+## $ name  &lt;chr&gt; &quot;Niger&quot;, &quot;Angola&quot;, &quot;Mali&quot;, &quot;Uganda&quot;, &quot;Benin&quot;, &quot;Chad&quot;, &quot;Congo, D…
+## $ value &lt;dbl&gt; 47.28, 42.22, 41.60, 41.60, 41.55, 41.05, 40.53, 38.26, 38.25, …</code></pre>
+<pre class="r"><code>gross.national.savings2 &lt;- gross.national.savings1 %&gt;% pivot_longer(cols = everything())
+glimpse(gross.national.savings2)</code></pre>
+<pre><code>## Rows: 183
+## Columns: 2
+## $ name  &lt;chr&gt; &quot;Qatar&quot;, &quot;Palau&quot;, &quot;Brunei&quot;, &quot;Suriname&quot;, &quot;Singapore&quot;, &quot;China&quot;, &quot;…
+## $ value &lt;dbl&gt; 50.2, 48.7, 47.5, 46.6, 46.5, 45.8, 45.4, 40.4, 40.3, 38.9, 38.…</code></pre>
+<pre class="r"><code>median.age2 &lt;- median.age1 %&gt;% pivot_longer(cols = everything())
+glimpse(median.age2)</code></pre>
+<pre><code>## Rows: 226
+## Columns: 2
+## $ name  &lt;chr&gt; &quot;Monaco&quot;, &quot;Japan&quot;, &quot;Saint Pierre and Miquelon&quot;, &quot;Germany&quot;, &quot;Ita…
+## $ value &lt;dbl&gt; 55.4, 48.6, 48.5, 47.8, 46.5, 46.2, 45.6, 45.6, 45.3, 45.2, 44.…</code></pre>
+<pre class="r"><code>infant.mortality.rate2 &lt;- infant.mortality.rate1 %&gt;% pivot_longer(cols = everything())
+glimpse(infant.mortality.rate2)</code></pre>
+<pre><code>## Rows: 235
+## Columns: 2
+## $ name  &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Somalia&quot;, &quot;Central African Republic&quot;, &quot;Niger&quot;, …
+## $ value &lt;dbl&gt; 106.75, 88.03, 84.22, 68.12, 67.02, 68.12, 65.34, 65.04, 64.77,…</code></pre>
+<p>All of the data obtained from the CIA World Factbook was already tidy, so I untidied them with pivot_wider. In untidying the data, the number of columns went from 2 to however many countries the data set contained. For example, the data set that contained birth rates went from 2 columns to 227 columns, as the data set contained 227 countries. In order to retidy the data, I used pivot_longer to restore the original dimensions of the data set.</p>
+</div>
+<div id="joiningmerging" class="section level4">
+<h4>Joining/Merging</h4>
+<pre class="r"><code>merged &lt;- inner_join(birth.rate, gross.national.savings, by = &quot;Country&quot;)
+merged2 &lt;- inner_join(merged, median.age, by = &quot;Country&quot;)
+finalmerged &lt;- inner_join(merged2, infant.mortality.rate, by = &quot;Country&quot;)
+glimpse(finalmerged)</code></pre>
+<pre><code>## Rows: 183
+## Columns: 5
+## $ Country              &lt;fct&gt; &quot;Niger&quot;, &quot;Angola&quot;, &quot;Mali&quot;, &quot;Uganda&quot;, &quot;Benin&quot;, &quot;C…
+## $ BirthRate            &lt;dbl&gt; 47.28, 42.22, 41.60, 41.60, 41.55, 41.05, 40.53,…
+## $ GrossNationalSavings &lt;dbl&gt; 22.4, 28.6, 16.5, 20.6, 17.3, 15.5, 11.5, 3.6, 1…
+## $ MedianAge            &lt;dbl&gt; 14.8, 15.9, 16.0, 15.7, 17.0, 16.1, 16.7, 18.6, …
+## $ InfantMortalityRate  &lt;dbl&gt; 68.12, 60.58, 62.31, 31.49, 57.23, 67.02, 62.63,…</code></pre>
+<p>An inner join was performed to merge all 4 data sets. Two data sets were merged at a time until all 4 were merged into one. In the original data sets, there were 227 observations in the birth rate data set, 183 observations in the gross national savings data set, 226 observations in the median age data set, and 235 observations in the infant mortality rate data set. Upon merging the data with an inner join, multiple observations were dropped. The total number of observations after joining all data sets was 183 countries. An inner join was performed because some data sets didn’t contain data on a specific country that another data set might have. Therefore, I only wanted to keep observations that matched across all ID variables. A potential problem with dropping countries in the merged data set is that they will not be represented when interpreting the data. The countries that weren’t dropped may not be completely representative of the countries that were dropped, leading to skewed results.</p>
+</div>
+<div id="wrangling" class="section level4">
+<h4>Wrangling</h4>
+<pre class="r"><code># All six core dplyr functions were used to generate summary
+# tables/statistics
+
+finalmerged &lt;- finalmerged %&gt;% mutate(birthrate_cat = ifelse(BirthRate &gt; 
+    40, &quot;high&quot;, ifelse(BirthRate &lt;= 40 &amp; 20 &lt;= BirthRate, &quot;med&quot;, 
+    &quot;low&quot;)))
+finalmerged %&gt;% filter(MedianAge == max(MedianAge))</code></pre>
+<pre><code>##   Country BirthRate GrossNationalSavings MedianAge InfantMortalityRate
+## 1   Japan         7                   28      48.6                1.92
+##   birthrate_cat
+## 1           low</code></pre>
+<pre class="r"><code>finalmerged %&gt;% arrange(Country)</code></pre>
+<pre><code>##                Country BirthRate GrossNationalSavings MedianAge
+## 1          Afghanistan     36.08                 22.7      19.5
+## 2              Albania     12.86                 15.9      34.3
+## 3              Algeria     19.24                 37.8      28.9
+## 4               Angola     42.22                 28.6      15.9
+## 5  Antigua and Barbuda     15.30                 17.3      32.7
+## 6            Argentina     15.80                 17.6      32.4
+## 7              Armenia     11.45                 17.8      36.6
+## 8                Aruba     11.95                 17.0      39.9
+## 9            Australia     12.35                 21.0      37.5
+## 10             Austria      9.48                 27.0      44.5
+## 11          Azerbaijan     14.03                 24.6      32.6
+## 12        Bahamas, The     14.78                 11.4      32.8
+## 13             Bahrain     12.50                 19.8      32.9
+## 14          Bangladesh     17.88                 30.2      27.9
+## 15            Barbados     10.96                  7.2      39.5
+## 16             Belarus      9.32                 24.5      40.9
+##    InfantMortalityRate birthrate_cat
+## 1               106.75           med
+## 2                11.10           low
+## 3                20.23           low
+## 4                60.58          high
+## 5                14.65           low
+## 6                 9.55           low
+## 7                12.47           low
+## 8                12.39           low
+## 9                 3.05           low
+## 10                3.29           low
+## 11               24.10           low
+## 12               13.05           low
+## 13               10.54           low
+## 14               31.13           low
+## 15               10.23           low
+## 16                3.31           low
+##  [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 167 rows ]</code></pre>
+<pre class="r"><code>finalmerged %&gt;% select(Country, BirthRate, InfantMortalityRate)</code></pre>
+<pre><code>##                              Country BirthRate InfantMortalityRate
+## 1                              Niger     47.28               68.12
+## 2                             Angola     42.22               60.58
+## 3                               Mali     41.60               62.31
+## 4                             Uganda     41.60               31.49
+## 5                              Benin     41.55               57.23
+## 6                               Chad     41.05               67.02
+## 7  Congo, Democratic Republic of the     40.53               62.63
+## 8                        South Sudan     38.26               64.77
+## 9                         Mozambique     38.03               63.03
+## 10                           Liberia     36.96               45.98
+## 11                     Guinea-Bissau     36.64               50.44
+## 12                       Afghanistan     36.08              106.75
+## 13                          Cameroon     35.91               50.09
+## 14                            Guinea     35.86               50.99
+## 15                           Burundi     35.48               38.96
+## 16                            Zambia     35.23               37.91
+## 17                      Sierra Leone     35.04               65.34
+## 18                           Nigeria     34.38               58.23
+## 19                      Burkina Faso     34.34               50.71
+## 20                          Tanzania     33.71               31.51
+## 21                             Sudan     33.63               43.15
+## 22                          Zimbabwe     33.34               29.41
+## 23          Central African Republic     33.20               84.22
+## 24                              Togo     32.34               42.64
+## 25            Congo, Republic of the     32.15               49.28
+## 26                           Senegal     31.31               47.72
+## 27                          Ethiopia     31.03               34.62
+## 28                 Equatorial Guinea     30.09               63.25
+## 29                        Madagascar     29.22               39.82
+## 30                             Ghana     29.08               33.33
+## 31             Sao Tome and Principe     28.94               45.30
+## 32                     Cote d&#39;Ivoire     28.67               57.36
+## 33                            Malawi     28.59               34.19
+##  [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 150 rows ]</code></pre>
+<pre class="r"><code># Summary statistics were created for each numeric variable
+
+finalmerged %&gt;% summarize(mean_birthrate = mean(BirthRate, na.rm = T), 
+    sd_birthrate = sd(BirthRate, na.rm = T), var_birthrate = var(BirthRate, 
+        na.rm = T), min_birthrate = min(BirthRate, na.rm = T), 
+    max_birthrate = max(BirthRate, na.rm = T))</code></pre>
+<pre><code>##   mean_birthrate sd_birthrate var_birthrate min_birthrate max_birthrate
+## 1       18.81612     9.376178      87.91271          6.89         47.28</code></pre>
+<pre class="r"><code>finalmerged %&gt;% summarize(mean_grossnational = mean(GrossNationalSavings, 
+    na.rm = T), sd_grossnational = sd(GrossNationalSavings, na.rm = T), 
+    var_grossnational = var(GrossNationalSavings, na.rm = T), 
+    min_grossnational = min(GrossNationalSavings, na.rm = T), 
+    max_grossnational = max(GrossNationalSavings, na.rm = T))</code></pre>
+<pre><code>##   mean_grossnational sd_grossnational var_grossnational min_grossnational
+## 1           20.97049          10.6384          113.1756             -21.9
+##   max_grossnational
+## 1              50.2</code></pre>
+<pre class="r"><code>finalmerged %&gt;% summarize(mean_medianage = mean(MedianAge, na.rm = T), 
+    sd_medianage = sd(MedianAge, na.rm = T), var_medianage = var(MedianAge, 
+        na.rm = T), min_medianage = min(MedianAge, na.rm = T), 
+    max_medianage = max(MedianAge, na.rm = T))</code></pre>
+<pre><code>##   mean_medianage sd_medianage var_medianage min_medianage max_medianage
+## 1       30.66393     8.969454      80.45111          14.8          48.6</code></pre>
+<pre class="r"><code>finalmerged %&gt;% summarize(mean_infantmortality = mean(InfantMortalityRate, 
+    na.rm = T), sd_infantmortality = sd(InfantMortalityRate, 
+    na.rm = T), var_infantmortality = var(InfantMortalityRate, 
+    na.rm = T), min_infantmortality = min(InfantMortalityRate, 
+    na.rm = T), max_infantmortality = max(InfantMortalityRate, 
+    na.rm = T))</code></pre>
+<pre><code>##   mean_infantmortality sd_infantmortality var_infantmortality
+## 1              22.6029           20.01062            400.4251
+##   min_infantmortality max_infantmortality
+## 1                1.53              106.75</code></pre>
+<pre class="r"><code># Summarizing after grouping by a categorical variable
+
+finalmerged %&gt;% group_by(birthrate_cat) %&gt;% summarize(mean_infantmortality = mean(InfantMortalityRate, 
+    na.rm = T), sd_infantmortality = sd(InfantMortalityRate, 
+    na.rm = T), var_infantmortality = var(InfantMortalityRate, 
+    na.rm = T), min_infantmortality = min(InfantMortalityRate, 
+    na.rm = T))</code></pre>
+<pre><code>## # A tibble: 3 x 5
+##   birthrate_cat mean_infantmort… sd_infantmortal… var_infantmorta…
+##   &lt;chr&gt;                    &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 high                      58.5            12.5             155. 
+## 2 low                       11.4             8.94             79.8
+## 3 med                       41.1            18.1             329. 
+## # … with 1 more variable: min_infantmortality &lt;dbl&gt;</code></pre>
+<pre class="r"><code>finalmerged %&gt;% group_by(birthrate_cat) %&gt;% summarize(mean_grossnational = mean(GrossNationalSavings, 
+    na.rm = T), sd_grossnational = sd(GrossNationalSavings, na.rm = T), 
+    var_grossnational = var(GrossNationalSavings, na.rm = T), 
+    min_grossnational = min(GrossNationalSavings, na.rm = T), 
+    max_grossnational = max(GrossNationalSavings, na.rm = T))</code></pre>
+<pre><code>## # A tibble: 3 x 6
+##   birthrate_cat mean_grossnatio… sd_grossnational var_grossnation…
+##   &lt;chr&gt;                    &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 high                      18.9             5.54             30.6
+## 2 low                       23.8             9.85             97.0
+## 3 med                       15.6            10.6             113. 
+## # … with 2 more variables: min_grossnational &lt;dbl&gt;, max_grossnational &lt;dbl&gt;</code></pre>
+<pre class="r"><code># A correlation matrix for all numeric variables was created
+
+cormat &lt;- finalmerged %&gt;% select_if(is.numeric) %&gt;% cor(use = &quot;pair&quot;)</code></pre>
+<p>A categorical variable was first created with mutate, as all variables were numerical. I decided to categorize the birth rate of each country, be designating the birth rates as “high,” “medium,” or “low.” The filter function was then used to find the country with the highest median age which was Japan. Next, the countries were arranged in alphabetical order from A to Z and finally, each country was selected to just compare the birth rates and the infant mortality rates. Summary statistics were then generated for each variable, with these summary statistics being the mean, standard deviation, variance, minimum, and maximum. It was found that the mean birth rate of all countries included in the data set was considered “low” and that the average median age of people currently alive in the world is about 31 years. Lastly, summarize was used after grouping by the birth rate categorical variable. From this analysis, it was found that countries with a higher birth rate tend to also have higher infant mortality rates, while countries with a lower birth rate tend to have lower infant mortality rates. However, there didn’t seem to be much correlation between birth rate and gross national savings of a country. Lastly, a correlation matrix was generated to find correlations of all numeric variables in my data set.</p>
+</div>
+<div id="visualizing" class="section level4">
+<h4>Visualizing</h4>
+<pre class="r"><code># A correlation heat map of numeric variables was created
+
+tidycor &lt;- cormat %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;% 
+    pivot_longer(-1, names_to = &quot;var2&quot;, values_to = &quot;correlation&quot;)
+tidycor %&gt;% ggplot(aes(var1, var2, fill = correlation)) + geom_tile() + 
+    scale_fill_gradient2(low = &quot;red&quot;, mid = &quot;white&quot;, high = &quot;blue&quot;) + 
+    geom_text(aes(label = round(correlation, 2)), color = &quot;black&quot;, 
+        size = 4) + theme(axis.text.x = element_text(angle = 90, 
+    hjust = 1)) + coord_fixed()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># An additional 2 ggplots were created
+
+ggplot(data = finalmerged, aes(x = MedianAge, y = InfantMortalityRate)) + 
+    geom_point(size = 4, aes(color = birthrate_cat), stat = &quot;summary&quot;, 
+        fun = mean) + theme_minimal() + ggtitle(&quot;Median Age vs. Infant Mortality Rate&quot;) + 
+    ylab(&quot;Infant Mortality Rate&quot;) + xlab(&quot;Median Age&quot;) + scale_x_continuous(breaks = seq(0, 
+    50, 5))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot1 &lt;- ggplot(data = finalmerged, aes(x = GrossNationalSavings, 
+    y = MedianAge, color = birthrate_cat, group = birthrate_cat)) + 
+    geom_line() + theme(legend.position = &quot;none&quot;) + ggtitle(&quot;Gross National Savings vs. Median Age by Birth Rate&quot;) + 
+    ylab(&quot;Gross National Savings&quot;) + xlab(&quot;Median Age&quot;)
+plot1 + facet_wrap(~birthrate_cat)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The correlation heatmap shows the correlations between all four of my numeric variables. Based on the heatmap, the magnitude of the correlation between birth rate and median age is the strongest while the magnitude of the correlation between infant mortality rate and gross national savings is the weakest. Birth rate and median age have a negative correlation which makes sense because an increased life span (and therefore a greater median age) comes at the cost of a reduced birth rate. Additionally, birth rate and infant mortality rate have the strongest positive correlation. This makes sense because a higher infant mortality rate will most likely lead to a mother wanting another child, thus increasing the birth rate.</p>
+<p>The second plot examines the relationship between median age and infant mortality rate when grouped by the categorical birth rate. The plot further confirms the correlation heatmap in that birth rate and median age are negatively correlated because the countries with lower birth rates are all scattered at the higher end of the median age. There seems to be a negative exponential relationship between median age and infant mortality rate in that as median age increases, the infant mortality rate decreases. However, the graph starts leveling off around 5 infant deaths, indicating that infant mortality rates are never zero.</p>
+<p>The last plot examines the relationship between gross national savings and median age when grouped by the categorical birth rate. This plot shows that there is huge variation between the two variables and that they are not well related. For example, in countries with a low birth rate, the gross national savings goes as low to about 25 and as high to about 48 with not much change in the median age. However, a lower birth rate tends to have a higher gross national savings when compared to countries with a higher birth rate.</p>
+</div>
+<div id="dimensionality-reduction" class="section level4">
+<h4>Dimensionality Reduction</h4>
+<pre class="r"><code># The number of clusters was determined with silhouette width
+library(cluster)
+clust_dat &lt;- finalmerged %&gt;% dplyr::select(InfantMortalityRate, 
+    MedianAge, BirthRate, GrossNationalSavings)
+sil_width &lt;- vector()
+for (i in 2:10) {
+    kms &lt;- kmeans(clust_dat, centers = i)
+    sil &lt;- silhouette(kms$cluster, dist(clust_dat))
+    sil_width[i] &lt;- mean(sil[, 3])
+}
+ggplot() + geom_line(aes(x = 1:10, y = sil_width)) + scale_x_continuous(name = &quot;k&quot;, 
+    breaks = 1:10)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># A cluster analysis was run using PAM
+
+pam1 &lt;- finalmerged %&gt;% select(InfantMortalityRate, MedianAge, 
+    BirthRate, GrossNationalSavings) %&gt;% scale %&gt;% pam(2)
+pam1</code></pre>
+<pre><code>## Medoids:
+##       ID InfantMortalityRate  MedianAge  BirthRate GrossNationalSavings
+## [1,]  29           0.8603982 -1.1554699  1.1096078           -0.5800205
+## [2,] 127          -0.7047704  0.6506601 -0.6811006           -0.1006252
+## Clustering vector:
+##   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 1 2 2 2 2 2 2 2 2 2 1
+##  [75] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 83 entries ]
+## Objective function:
+##    build     swap 
+## 1.352511 1.263989 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<pre class="r"><code>plot(pam1, which = 2)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># The cluster was visualized and interpreted
+
+final &lt;- finalmerged %&gt;% select(InfantMortalityRate, MedianAge, 
+    BirthRate, GrossNationalSavings) %&gt;% mutate(cluster = pam1$clustering)
+ggplot(final, aes(x = InfantMortalityRate, y = MedianAge, color = cluster)) + 
+    geom_point()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-6-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Based on the results and the average silhouette width of 0.46 or all numeric variables, the structure between the clusters is weak and could be artificial. The number of clusters was determined using silhouette width, which indexes how cohesive and separated clusters are simultaneously. The higher the silhouette width, the better because clusters are more cohesive and more separated. Based on the plot, the number of clusters chosen was 2. Lastly, a plot was created to visualize infant mortality rate and median age, but in clusters based on all 4 numeric variables. The plot started to show some discrimination between clusters that we otherwise may not have been able to see.</p>
+</div>
 </div>
 
             

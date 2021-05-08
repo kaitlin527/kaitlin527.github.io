@@ -1,8 +1,172 @@
 ---
-title: "Project 1"
-author: "Me"
-date: "2020-12-01"
+title: "Societal Trends of the World"
 output: html_document
 ---
 
-## Test Project 1
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F,
+tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
+```
+
+## R Markdown
+
+#### Introduction
+
+There are many factors that contribute to a country's standing with the rest of the world. The specific factors that will be explored in this project are the birth rate, gross national savings, median age, and the infant mortality rate by country. The birth rate compares the mean annual number of births a year per 1,000 people in the population. Gross national savings is computed by subtracting final consumption expenditure from gross national disposable income. The median age represents the median age of the population. The infant mortality rate is the number of deaths in infants that are younger than one year old out of 1,000 live births. These datasets were collected by accessing the Central Intelligence Agency's (CIA) online World Factbook. The World Factbook gives demographic information on 266 world entities. These demographics range from geography, society, economy, energy, and many more. These specific variables were chosen in order to better understand the lives of other cultures outside of the United States and to explore the behaviors of people in today's society.
+
+#### Finding, Importing, and Renaming Data
+
+```{r}
+#Tidyverse was loaded into R and each data set was imported
+
+library(tidyverse)
+birth.rate <- read.csv("~/birth rate.csv", header=FALSE)
+gross.national.savings <- read.csv("~/gross national savings.csv", header=FALSE)
+infant.mortality.rate <- read.csv("~/infant mortality rate.csv", header=FALSE)
+median.age <- read.csv("~/median age.csv", header=FALSE)
+
+#The last column of each data set contained no data and was removed
+
+birth.rate$V3 <- NULL
+gross.national.savings$V3 <- NULL
+infant.mortality.rate$V3 <- NULL
+median.age$V3 <- NULL
+
+#The remaining 2 columns of each data set were renamed
+
+names(birth.rate)[names(birth.rate) == "V1"] <- "Country"
+names(birth.rate)[names(birth.rate) == "V2"] <- "BirthRate"
+names(gross.national.savings)[names(gross.national.savings) == "V1"] <- "Country"
+names(gross.national.savings)[names(gross.national.savings) == "V2"] <- "GrossNationalSavings"
+names(infant.mortality.rate)[names(infant.mortality.rate) == "V1"] <- "Country"
+names(infant.mortality.rate)[names(infant.mortality.rate) == "V2"] <- "InfantMortalityRate"
+names(median.age)[names(median.age) == "V1"] <- "Country"
+names(median.age)[names(median.age) == "V2"] <- "MedianAge"
+```
+
+#### Tidying: Rearranging Wide/Long
+
+```{R}
+#The Birth Rate data set was untidied with pivot_wider
+
+birth.rate1 <- birth.rate %>% pivot_wider(names_from="Country", values_from="BirthRate")
+glimpse(birth.rate1)
+
+#The Gross National Savings data set was untidied with pivot_wider
+
+gross.national.savings1 <- gross.national.savings %>% pivot_wider(names_from="Country", values_from="GrossNationalSavings")
+glimpse(gross.national.savings1)
+
+#The Median Age data set was untidied with pivot_wider
+
+median.age1 <- median.age %>% pivot_wider(names_from="Country", values_from="MedianAge")
+glimpse(median.age1)
+
+#The Infant Mortality Rate data set was untidied with pivot_wider
+
+infant.mortality.rate1 <- infant.mortality.rate %>% pivot_wider(names_from="Country", values_from="InfantMortalityRate")
+glimpse(infant.mortality.rate1)
+
+#Each data set was then retidied with pivot_longer
+
+birth.rate2 <- birth.rate1 %>% pivot_longer(cols = everything())
+glimpse(birth.rate2)
+gross.national.savings2 <- gross.national.savings1 %>% pivot_longer(cols = everything())
+glimpse(gross.national.savings2)
+median.age2 <- median.age1 %>% pivot_longer(cols = everything())
+glimpse(median.age2)
+infant.mortality.rate2 <- infant.mortality.rate1 %>% pivot_longer(cols = everything())
+glimpse(infant.mortality.rate2)
+```
+
+All of the data obtained from the CIA World Factbook was already tidy, so I untidied them with pivot_wider. In untidying the data, the number of columns went from 2 to however many countries the data set contained. For example, the data set that contained birth rates went from 2 columns to 227 columns, as the data set contained 227 countries. In order to retidy the data, I used pivot_longer to restore the original dimensions of the data set.
+
+#### Joining/Merging
+
+```{R}
+merged <- inner_join(birth.rate, gross.national.savings, by="Country")
+merged2 <- inner_join(merged, median.age, by="Country")
+finalmerged <- inner_join(merged2, infant.mortality.rate, by="Country")
+glimpse(finalmerged)
+```
+
+An inner join was performed to merge all 4 data sets. Two data sets were merged at a time until all 4 were merged into one. In the original data sets, there were 227 observations in the birth rate data set, 183 observations in the gross national savings data set, 226 observations in the median age data set, and 235 observations in the infant mortality rate data set. Upon merging the data with an inner join, multiple observations were dropped. The total number of observations after joining all data sets was 183 countries. An inner join was performed because some data sets didn't contain data on a specific country that another data set might have. Therefore, I only wanted to keep observations that matched across all ID variables. A potential problem with dropping countries in the merged data set is that they will not be represented when interpreting the data. The countries that weren't dropped may not be completely representative of the countries that were dropped, leading to skewed results.
+
+#### Wrangling
+
+```{r}
+
+#All six core dplyr functions were used to generate summary tables/statistics
+
+finalmerged <- finalmerged %>% mutate(birthrate_cat = ifelse(BirthRate>40, "high", ifelse(BirthRate<=40 & 20<=BirthRate, "med", "low")))
+finalmerged %>% filter(MedianAge == max(MedianAge))
+finalmerged %>% arrange(Country)
+finalmerged %>% select(Country, BirthRate, InfantMortalityRate)
+
+#Summary statistics were created for each numeric variable
+
+finalmerged %>% summarize(mean_birthrate=mean(BirthRate, na.rm=T), sd_birthrate=sd(BirthRate, na.rm=T), var_birthrate=var(BirthRate, na.rm=T), min_birthrate=min(BirthRate, na.rm=T), max_birthrate=max(BirthRate, na.rm=T))
+finalmerged %>% summarize(mean_grossnational=mean(GrossNationalSavings, na.rm=T), sd_grossnational=sd(GrossNationalSavings, na.rm=T), var_grossnational=var(GrossNationalSavings, na.rm=T), min_grossnational=min(GrossNationalSavings, na.rm=T), max_grossnational=max(GrossNationalSavings, na.rm=T))
+finalmerged %>% summarize(mean_medianage=mean(MedianAge, na.rm=T), sd_medianage=sd(MedianAge, na.rm=T), var_medianage=var(MedianAge, na.rm=T), min_medianage=min(MedianAge, na.rm=T), max_medianage=max(MedianAge, na.rm=T))
+finalmerged %>% summarize(mean_infantmortality=mean(InfantMortalityRate, na.rm=T), sd_infantmortality=sd(InfantMortalityRate, na.rm=T), var_infantmortality=var(InfantMortalityRate, na.rm=T), min_infantmortality=min(InfantMortalityRate, na.rm=T), max_infantmortality=max(InfantMortalityRate, na.rm=T))
+
+#Summarizing after grouping by a categorical variable
+
+finalmerged %>% group_by(birthrate_cat) %>% summarize(mean_infantmortality=mean(InfantMortalityRate, na.rm=T), sd_infantmortality=sd(InfantMortalityRate, na.rm=T), var_infantmortality=var(InfantMortalityRate, na.rm=T), min_infantmortality=min(InfantMortalityRate, na.rm=T))
+finalmerged %>% group_by(birthrate_cat) %>% summarize(mean_grossnational=mean(GrossNationalSavings, na.rm=T), sd_grossnational=sd(GrossNationalSavings, na.rm=T), var_grossnational=var(GrossNationalSavings, na.rm=T), min_grossnational=min(GrossNationalSavings, na.rm=T), max_grossnational=max(GrossNationalSavings, na.rm=T))
+
+#A correlation matrix for all numeric variables was created
+
+cormat <- finalmerged %>% select_if(is.numeric) %>% cor(use="pair")
+```
+
+A categorical variable was first created with mutate, as all variables were numerical. I decided to categorize the birth rate of each country, be designating the birth rates as "high," "medium," or "low." The filter function was then used to find the country with the highest median age which was Japan. Next, the countries were arranged in alphabetical order from A to Z and finally, each country was selected to just compare the birth rates and the infant mortality rates. Summary statistics were then generated for each variable, with these summary statistics being the mean, standard deviation, variance, minimum, and maximum. It was found that the mean birth rate of all countries included in the data set was considered "low" and that the average median age of people currently alive in the world is about 31 years. Lastly, summarize was used after grouping by the birth rate categorical variable. From this analysis, it was found that countries with a higher birth rate tend to also have higher infant mortality rates, while countries with a lower birth rate tend to have lower infant mortality rates. However, there didn't seem to be much correlation between birth rate and gross national savings of a country. Lastly, a correlation matrix was generated to find correlations of all numeric variables in my data set.
+
+#### Visualizing
+
+```{r}
+#A correlation heat map of numeric variables was created
+
+tidycor <- cormat %>% as.data.frame %>% rownames_to_column("var1") %>% pivot_longer(-1,names_to="var2", values_to="correlation")
+tidycor %>% ggplot(aes(var1, var2,fill=correlation)) + geom_tile() + scale_fill_gradient2(low="red", mid="white", high="blue") + geom_text(aes(label=round(correlation,2)),color="black", size=4) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_fixed()
+
+#An additional 2 ggplots were created
+
+ggplot(data = finalmerged, aes(x = MedianAge, y = InfantMortalityRate)) + geom_point(size=4, aes(color = birthrate_cat), stat="summary", fun=mean) + theme_minimal() + ggtitle("Median Age vs. Infant Mortality Rate") + ylab("Infant Mortality Rate") + xlab("Median Age") + scale_x_continuous(breaks=seq(0,50,5))
+plot1 <- ggplot(data = finalmerged, aes(x = GrossNationalSavings, y = MedianAge, color = birthrate_cat, group=birthrate_cat)) + geom_line() + theme(legend.position="none") + ggtitle("Gross National Savings vs. Median Age by Birth Rate") + ylab("Gross National Savings") + xlab("Median Age")
+plot1 + facet_wrap(~birthrate_cat)
+```
+
+The correlation heatmap shows the correlations between all four of my numeric variables. Based on the heatmap, the magnitude of the correlation between birth rate and median age is the strongest while the magnitude of the correlation between infant mortality rate and gross national savings is the weakest. Birth rate and median age have a negative correlation which makes sense because an increased life span (and therefore a greater median age) comes at the cost of a reduced birth rate. Additionally, birth rate and infant mortality rate have the strongest positive correlation. This makes sense because a higher infant mortality rate will most likely lead to a mother wanting another child, thus increasing the birth rate.
+
+The second plot examines the relationship between median age and infant mortality rate when grouped by the categorical birth rate. The plot further confirms the correlation heatmap in that birth rate and median age are negatively correlated because the countries with lower birth rates are all scattered at the higher end of the median age. There seems to be a negative exponential relationship between median age and infant mortality rate in that as median age increases, the infant mortality rate decreases. However, the graph starts leveling off around 5 infant deaths, indicating that infant mortality rates are never zero.
+
+The last plot examines the relationship between gross national savings and median age when grouped by the categorical birth rate. This plot shows that there is huge variation between the two variables and that they are not well related. For example, in countries with a low birth rate, the gross national savings goes as low to about 25 and as high to about 48 with not much change in the median age. However, a lower birth rate tends to have a higher gross national savings when compared to countries with a higher birth rate.
+
+#### Dimensionality Reduction 
+
+```{r}
+#The number of clusters was determined with silhouette width
+library(cluster)
+clust_dat <- finalmerged %>% dplyr::select(InfantMortalityRate, MedianAge, BirthRate, GrossNationalSavings)
+sil_width<-vector()
+for(i in 2:10){
+  kms <- kmeans(clust_dat, centers=i)
+  sil <- silhouette(kms$cluster,dist(clust_dat))
+  sil_width[i]<-mean(sil[,3])
+}
+ggplot() + geom_line(aes(x=1:10, y=sil_width))+scale_x_continuous(name="k", breaks=1:10)
+
+#A cluster analysis was run using PAM
+
+pam1 <- finalmerged %>% select(InfantMortalityRate, MedianAge, BirthRate, GrossNationalSavings) %>% scale %>% pam(2)
+pam1
+plot(pam1,which=2)
+
+#The cluster was visualized and interpreted
+
+final<-finalmerged%>%select(InfantMortalityRate, MedianAge, BirthRate, GrossNationalSavings)%>%mutate(cluster=pam1$clustering)
+ggplot(final, aes(x=InfantMortalityRate, y=MedianAge, color=cluster))+geom_point()
+```
+
+Based on the results and the average silhouette width of 0.46 or all numeric variables, the structure between the clusters is weak and could be artificial. The number of clusters was determined using silhouette width, which indexes how cohesive and separated clusters are simultaneously. The higher the silhouette width, the better because clusters are more cohesive and more separated. Based on the plot, the number of clusters chosen was 2. Lastly, a plot was created to visualize infant mortality rate and median age, but in clusters based on all 4 numeric variables. The plot started to show some discrimination between clusters that we otherwise may not have been able to see.

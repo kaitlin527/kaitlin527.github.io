@@ -1,8 +1,226 @@
 ---
-title: "Project 2"
-author: "Me"
-date: "2020-12-01"
+title: "The Housing Trend in Melbourne, Australia"
 output: html_document
 ---
 
-## Test Project 2
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+
+class_diag<-function(probs,truth){
+  
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,auc)
+}
+```
+
+## R Markdown
+
+#### Finding, Importing, and Renaming Data
+
+```{r}
+housing <- read.csv("~/melb_data.csv", header=TRUE) # the data set was imported
+housing <- housing %>% select(Rooms, Type, Price, Method, Landsize, Lattitude, Longtitude, Regionname) # six variables were selected
+housing <- housing %>% mutate(y=as.integer(housing$Type=="h")) # a binary variable was created
+housing <- housing %>% mutate(rooms2 = recode(Rooms,"one", "two", "three", "four", "five", "six"))
+```
+
+#### Introduction
+
+Having visited Melbourne at the beginning of 2020 and a city that I could see myself moving to, looking at the Melbourne housing market is of high interest. The specific variables that are explored in this project are the number of rooms, the type, the price, the method, the land size, and the region name. The type includes "h" (house, cottage, villa, semi, terrace), "u" (unit, duplex), or "t" (townhouse). The price is the price of the property in dollars. The method is how the property was sold. "S" means the property was sold, "SP" means the property was sold prior, "SA" means the property was sold after auction, "PI" means the property was passed in, and "VB" means the property had a vendor bid. Finally, the region name is the property's location in a general region. There are a total of 13,580 observations.
+
+#### MANOVA Testing
+
+```{r}
+# a MANOVA test was run
+man1 <- manova(cbind(Price, Landsize, Lattitude, Longtitude)~Regionname, data=housing)
+summary(man1)
+
+# due to significance, univariate ANOVAs were run
+summary.aov(man1)
+
+# post-hoc t-tests for significant variables
+pairwise.t.test(housing$Price, housing$Regionname, p.adj="none")
+pairwise.t.test(housing$Landsize, housing$Regionname, p.adj="none")
+pairwise.t.test(housing$Lattitude, housing$Regionname, p.adj="none")
+pairwise.t.test(housing$Longtitude, housing$Regionname, p.adj="none")
+
+# probability of at least one type I error
+Type1ErrorCount <- replicate(5000,{
+  pvals<-NULL
+    for(i in 1:112){
+      samp1 <- rnorm(20, mean=0)
+      samp2 <- rnorm(20, mean=0)
+      pvals[i] <- t.test(samp1, samp2, var.eq=T)$p.val
+    }
+  sum(pvals<.05)
+})
+mean(Type1ErrorCount>0)
+
+# bonferroni correction
+0.05/117
+```
+
+In performing the MANOVA test, the null hypothesis is for each response variable, the means of all groups are equal. The alternative hypothesis is that for at least one response variable, at least one group mean differs. Based on the results from the MANOVA test, the result is significant (p<2.2e-16), meaning that we can reject the null hypothesis and that for at least one response variable, at least one group mean differs. Because the MANOVA was significant, a univariate ANOVA was run to determine which response variables are significant. Based on the data, price, land size, latitude, and longitude were all significant where at least one region differed. Post-hoc t-tests were run and in the end, a total of 117 tests were performed (1 MANOVA, 4 ANOVAs, and 112 t-tests). The probability of making at least one Type I error is 99.56%. After adjusting the significance level using a bonferroni correction, the significance level is now 0.00043. However, even after this adjustment, all tests are still significant, meaning that for all response variables, at least one group mean differs. In the MANOVA assumptions, we cannot assume that the data was randomly collected, as this was most likely a list of all properties sold in Melbourne. Additionally, we cannot assume that the dependent variables have multivariate normality. 
+
+#### Randomization Testing
+
+```{r}
+t.test(data=housing,Price~y) # randomization test: mean difference
+ggplot(housing, aes(Price,fill=y)) + geom_histogram(bins=6.5) + facet_wrap(~y) + theme(legend.position="none") # plot 
+```
+
+A two-sample t-test was run in order to determine if there was a mean difference in price between properties that were either a house, cottage, villa, semi, or terrace or the other types of properties. The null hypothesis was that the true difference in mean price is equal to zero, while the alternative hypothesis was that the true difference in mean price is not equal to zero. In performing the t-test, it was found that the results were significant (p-value<2.2e-16). We can reject the null hypothesis and say that there is a mean difference in price between properties that are either a house, cottage, villa, semi, or terrace versus the other types of properties.
+
+#### Linear Regression Model
+
+```{r}
+housing$Price_c <- housing$Price - mean(housing$Price) # mean-center
+housing$Landsize_c <- housing$Landsize - mean(housing$Landsize) # mean-center
+fit<-lm(Price_c~Method*Landsize_c, data=housing)
+summary(fit) # linear regression model
+ggplot(housing, aes(Landsize_c, Price_c, color=Method)) + geom_smooth(method="lm") # regression plot
+resids<-fit$residuals; fitvals<-fit$fitted.values # checking for linearity and homoskedasticity
+ggplot() + geom_point(aes(fitvals,resids)) + geom_hline(yintercept=0, col="red")
+ggplot() + geom_histogram(aes(resids), bins=20) # checking for normality
+library(sandwich); library(lmtest)
+summary(fit)$coef[,1:2] # uncorrected SEs
+coeftest(fit, vcov=vcovHC(fit))[,1:2] # corrected SEs
+```
+
+The mean/predicted price for properties that were passed in (PI) with a land size of 0 is $60,578.09. Properties that were sold (S) with a land size of 0 have a predicted price that is $48,579.46 lower than PI properties with a land size of 0. Properties that were sold after auction (SA) with a land size of 0 have a predicted price that is $109,777.28 lower than PI properties with a land size of 0. Properties that were sold prior (SP) with a land size of 0 have a predicted price that is $230,642.11 lower than PI properties with a land size of 0. Properties that had a vendor bid (VB) with a land size of 0 have a predicted price that is $28,649.71 higher than PI properties with a land size of 0. For every 1 unit increase in the land size, the predicted price goes up by $82.22 for PI properties. The slope of land size on price for S properties is 69.19 less than for PI properties. The slope of land size on price for SA properties is 87.27 less than for PI properties. The slope of land size on price for SP properties is 17.91 less than for PI properties. The slope of land size on price for VB properties is 77.89 less than for PI properties. 0.01558 of variability in the outcome is explained by the model. 
+
+When checking the assumptions of linearity, normality, and homoskedasticity, all assumptions seem to be violated. In looking at linearity and homoskedasticity, the residuals are not normally distributed and there is not an even scatter of points. In looking at normality, the histogram does not display a normal distribution. In recomputing regression results with robust standard errors, the standard error for the slopes increased and you will get a smaller t-statistic and a larger p-value, meaning you are less likely to reject the null hypothesis. 
+
+#### Rerunning the Linear Regression Model
+
+```{r}
+fit<-lm(Price_c~Method*Landsize_c, data=housing)
+resids1<-fit$residuals
+fitted<-fit$fitted.values
+
+resid_resamp<-replicate(5000,{
+  new_resids<-sample(resids1,replace=TRUE)
+  housing$new_y<-fitted+new_resids
+  fit<-lm(new_y~Method*Landsize_c,data=housing)
+  coef(fit)
+})
+
+resid_resamp%>%t%>%as.data.frame%>%summarize_all(sd)
+```
+
+After computing bootstrapped standard errors by resampling residuals, there were changes in the standard errors when compared to the original and robust standard errors. In comparing the resampled residuals to the original standard errors, there doesn't seem to be as big of a change in the standard errors as when comparing the resampled residuals to the robust standard errors.
+
+#### Logistic Regression Model Part 1
+
+```{r}
+fit1<-glm(y~Landsize_c+Price_c, data=housing, family="binomial") # logistic regression model
+coeftest(fit1)
+probs<-predict(fit1, type="response")
+table(predict=as.numeric(probs>.5), truth=housing$y)%>%addmargins # confusion matrix
+8437/9449 # Accuracy, Sensitivity (TPR)
+2140/4131 # Specificity (TNR)
+8437/10428 # Precision (PPV)
+class_diag(probs,housing$y) # AUC
+housing$logit<-predict(fit1,type="link") # density plot
+housing%>%mutate(y=as.factor(y))%>%ggplot(aes(logit,color=y,fill=y))+geom_density(alpha=.4)+theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab("predictor (logit)")
+library(plotROC) # ROC curve
+ROCplot<-ggplot(housing)+geom_roc(aes(d=y, m=probs), n.cuts=0)
+ROCplot
+calc_auc(ROCplot) # calculate AUC
+```
+
+Controlling for the size of the land, for every $1 increase in the price, the odds of a property being a house, cottage, villa, semi, terrace, change by a factor of e^3.2059e-06=1. Controlling for the price, for every 1 unit increase in the land size, the odds of a property being a house, cottage, villa, semi, or terrace, change by a factor of e^9.6258e-05=1. 
+
+The TPR was found to be about 0.89, which means that it's the probability of detecting a property to be a house, cottage, villa, semi, or terrace if it really is one of those types of properties. The TNR was found to be about 0.52, which means that it's the probability of a the property not being a house, cottage, villa, semi, or terrace if it's not one of those properties. The PPV was found to be about 0.81, which means that it's the proportion classified as a house, cottage, villa, semi, or terrace when it actually is. The AUC was found to be 0.82, which means it can be classified as "good." Upon generating the ROC curve and calculating the AUC, the AUC was found to be about 0.82. This means that my AUC is considered "good."
+
+#### Logistic Regression Model Part 2
+
+```{r}
+housing1<-housing%>%select(-Price_c, -Landsize_c, -logit, -rooms2, -Type)
+fit2<-glm(y~., data=housing1, family="binomial") # logistic regression model
+coeftest(fit2)
+prob <- predict(fit2,type="response")
+class_diag(prob,housing1$y) # in-sample classification diagnostics
+
+set.seed(1234) # 10-fold CV
+k=10
+
+data<-housing1[sample(nrow(housing1)),]
+folds<-cut(seq(1:nrow(housing1)), breaks=k, labels=FALSE)
+
+diags<-NULL
+for(i in 1:k){
+  train<-data[folds!=i,]
+  test<-data[folds==i,]
+  truth<-test$y
+  fit<-glm(y~., data=housing1,family="binomial")
+  probs<-predict(fit,newdata=test, type="response")
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+summarize_all(diags,mean) # out-of-sample classification diagnostics
+
+library(glmnet)
+y<-as.matrix(housing1$y) # grab response
+x<-model.matrix(y~., data=housing1)[,-1] # grab predictors
+head(x)
+cv<-cv.glmnet(x, y, family="binomial")
+lasso<-glmnet(x, y, family="binomial", lambda=cv$lambda.1se)
+coef(lasso) # performed LASSO
+
+set.seed(1234) # 10-fold CV on LASSO
+k=10
+
+data<-housing1%>%sample_frac
+folds<-ntile(1:nrow(data),n=10)
+
+diags<-NULL
+for(i in 1:k){
+  train<-data[folds!=i,]
+  test<-data[folds==i,]
+  truth<-test$y
+  fit<-glm(y~Rooms+Price+Lattitude+Longtitude,
+           data=train, family="binomial")
+  probs<-predict(fit, newdata=test, type="response")
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+diags%>%summarize_all(mean)
+```
+
+With the in-sample classification diagnostics, the TPR was found to be about 0.93. This means that it's the probability of detecting a property to be a house, cottage, villa, semi, or terrace if it really is one of those types of properties. The TNR was found to be about 0.70, which means that it's the probability of a the property not being a house, cottage, villa, semi, or terrace if it's not one of those properties. The PPV was found to be about 0.88, which means that it's the proportion classified as a house, cottage, villa, semi, or terrace when it actually is. The AUC was found to be 0.90, which means it can be classified as "great." After performing a 10-fold CV and computing average out-of-sample classification diagnostics, the AUC was found to still be about 0.90, which means that it can be classified as "great." In comparing with the in-sample metrics, the numbers remained roughly the same for all measurements. 
+
+Once LASSO was performed on the model, the variables that were retained were the number of rooms, the price, the latitude and the longitude. A 10-fold CV was then performed only on the variables that LASSO selected. In comparing the model's out-of-sample AUC of 0.87, it decreased from the AUC of the other logistic regressions that were run. 

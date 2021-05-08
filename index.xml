@@ -6,25 +6,7 @@
     <description>Recent content on Chris Turner</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Tue, 01 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Project 1</title>
-      <link>/project/project1/</link>
-      <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/project/project1/</guid>
-      <description> Test Project 1  </description>
-    </item>
-    
-    <item>
-      <title>Project 2</title>
-      <link>/project/project2/</link>
-      <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/project/project2/</guid>
-      <description> Test Project 2  </description>
-    </item>
-    
+    <lastBuildDate>Thu, 23 Jul 2015 21:13:14 -0500</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Hello R Markdown</title>
       <link>/post/2015/07/23/hello-r-markdown/</link>
@@ -55,6 +37,24 @@ summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 2
       
       <guid>/resume/</guid>
       <description>    </description>
+    </item>
+    
+    <item>
+      <title>Societal Trends of the World</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>R Markdown Introduction There are many factors that contribute to a country’s standing with the rest of the world. The specific factors that will be explored in this project are the birth rate, gross national savings, median age, and the infant mortality rate by country. The birth rate compares the mean annual number of births a year per 1,000 people in the population. Gross national savings is computed by subtracting final consumption expenditure from gross national disposable income.</description>
+    </item>
+    
+    <item>
+      <title>The Housing Trend in Melbourne, Australia</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>R Markdown Finding, Importing, and Renaming Data housing &amp;lt;- read.csv(&amp;quot;~/melb_data.csv&amp;quot;, header=TRUE) # the data set was imported housing &amp;lt;- housing %&amp;gt;% select(Rooms, Type, Price, Method, Landsize, Lattitude, Longtitude, Regionname) # six variables were selected housing &amp;lt;- housing %&amp;gt;% mutate(y=as.integer(housing$Type==&amp;quot;h&amp;quot;)) # a binary variable was created housing &amp;lt;- housing %&amp;gt;% mutate(rooms2 = recode(Rooms,&amp;quot;one&amp;quot;, &amp;quot;two&amp;quot;, &amp;quot;three&amp;quot;, &amp;quot;four&amp;quot;, &amp;quot;five&amp;quot;, &amp;quot;six&amp;quot;))  Introduction Having visited Melbourne at the beginning of 2020 and a city that I could see myself moving to, looking at the Melbourne housing market is of high interest.</description>
     </item>
     
   </channel>
