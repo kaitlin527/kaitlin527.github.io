@@ -7,3 +7,35 @@ categories: []
 tags: []
 description: ''
 ---
+Python is a tool that is similar and as useful as R Studio. Python can be used as a calculator, can manipulate strings, can create lists, and can be used as many other functions. Additionally, Python can create plots. Below are some examples:
+
+```{python}
+# python as a calculator
+3-2
+3+2
+3**2
+```
+
+```{python}
+# indexing and lists
+list1=[1,2,3,4]
+list2=['a','b','c','d']
+list1[0]
+list2[1]
+list2[2:]
+```
+
+```{r}
+# reticulate
+
+library(reticulate)
+
+hi<-"Hello"
+```
+
+```{python}
+hi="world"
+print(r.hi,hi)
+```
+
+Through reticulate, we are now able to allow R and Python to play together. Objects can be named the same thing in R and Python without conflict.![](/post/2021-05-08-powerful-python_files/python-logo-master-v3-TM-flattened.png)
